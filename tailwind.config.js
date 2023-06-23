@@ -15,6 +15,10 @@ module.exports = {
       borderColor: {
         purple: "#8158e8",
       },
+      boxShadow: {
+        layout: "0px 0.6rem 0px black",
+        layouthover: "0px 0.1rem 0px black",
+      },
     },
   },
   plugins: [],

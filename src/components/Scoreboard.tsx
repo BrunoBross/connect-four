@@ -14,7 +14,7 @@ export default function Scoreboard(props: ScoreboardProps) {
   return (
     <div className="flex absolute w-full justify-center">
       <div className="flex absolute w-[65rem] top-72 justify-between">
-        <div className="flex flex-col gap-1 items-center bg-white w-36 py-3 border-[3px] border-b-8 border-black rounded-[2rem] ">
+        <div className="flex flex-col gap-1 items-center bg-white w-36 py-3 border-[3px] shadow-layout border-black rounded-3xl ">
           <img src={playerOne} alt="playerImg" />
           <p
             className={
@@ -28,7 +28,7 @@ export default function Scoreboard(props: ScoreboardProps) {
           </h1>
         </div>
 
-        <div className="flex flex-col bottom-36 gap-1 items-center bg-white w-36 py-3 border-[3px] border-b-8 border-black rounded-[2rem] ">
+        <div className="flex flex-col bottom-36 gap-1 items-center bg-white w-36 py-3 border-[3px] shadow-layout border-black rounded-3xl ">
           <img src={isVsPlayer ? playerTwo : cpu} alt="playerImg" />
           <p
             className={

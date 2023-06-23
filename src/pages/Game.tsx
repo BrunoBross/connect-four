@@ -178,7 +178,7 @@ export default function Game() {
         isVsPlayer={isVsPlayer}
       />
 
-      <div className="w-[40rem] h-[35rem] z-10 bg-white border-[3px] border-b-8 border-black rounded-[2rem]">
+      <div className="w-[40rem] h-[35rem] z-10 bg-white border-[3px] shadow-layout border-black rounded-3xl">
         <div className="flex w-full p-3">
           {gameMatrix.map((row, columnIdx) => {
             return (

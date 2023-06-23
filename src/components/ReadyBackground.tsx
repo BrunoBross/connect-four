@@ -8,7 +8,7 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
 
   return (
     <div className="absolute top-[5rem] flex flex-col items-center justify-center">
-      <div className="flex flex-col gap-1 absolute items-center justify-center bg-white px-5 py-3 border-[3px] border-b-8 border-black rounded-[2rem] ">
+      <div className="flex flex-col gap-1 absolute items-center justify-center bg-white px-5 py-3 border-[3px] shadow-layout border-black rounded-[2rem] ">
         <p
           className={
             "font-space font-bold text-black uppercase transition-colors"

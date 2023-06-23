@@ -45,40 +45,42 @@ export default function GameHeader(props: GameHeaderProps) {
         className="modal"
         closeTimeoutMS={200}
         style={{
-          overlay: { backgroundColor: "#00000080", zIndex: 1000 },
+          overlay: { backgroundColor: "#00000099", zIndex: 1000 },
         }}
         id="modal"
       >
         <animated.div style={modalAnimation}>
-          <div className="flex flex-col w-[500px] h-[500px] gap-6 bg-background-1 border-[3px] border-b-8 border-black rounded-[2rem] items-center justify-center">
-            <h1 className="font-space text-[4rem] text-white uppercase font-bold">
-              Pause
-            </h1>
-            <div className="flex flex-col w-full items-center gap-3">
-              <button
-                className="flex w-[85%] h-24 items-center justify-between bg-white p-3 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
-                onClick={() => setIsModalOpen(false)}
-              >
-                <p className="uppercase text-black font-space text-2xl font-bold">
-                  Continue Game
-                </p>
-              </button>
-              <button
-                className="flex w-[85%] h-24 items-center justify-between bg-white p-3 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
-                onClick={handleResetGame}
-              >
-                <p className="uppercase text-black font-space text-2xl font-bold">
-                  Restart
-                </p>
-              </button>
-              <Link
-                className="flex w-[85%] h-24 items-center justify-between bg-pink p-3 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
-                to="/"
-              >
-                <p className="uppercase text-black font-space text-2xl font-bold">
-                  Quit Game
-                </p>
-              </Link>
+          <div className="flex flex-col w-[450px] h-[550px] gap-6 bg-background-1 border-[3px] shadow-layout border-black rounded-[2rem] items-center justify-center">
+            <div className="flex flex-col h-full w-full py-10 items-center justify-around">
+              <h1 className="font-space text-[4rem] text-white uppercase font-bold">
+                Pause
+              </h1>
+              <div className="flex flex-col w-full items-center gap-5">
+                <button
+                  className="flex w-[85%] h-24 items-center justify-between bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  <p className="uppercase text-black font-space text-2xl font-bold">
+                    Continue Game
+                  </p>
+                </button>
+                <button
+                  className="flex w-[85%] h-24 items-center justify-between bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                  onClick={handleResetGame}
+                >
+                  <p className="uppercase text-black font-space text-2xl font-bold">
+                    Restart
+                  </p>
+                </button>
+                <Link
+                  className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                  to="/"
+                >
+                  <p className="uppercase text-black font-space text-2xl font-bold">
+                    Quit Game
+                  </p>
+                </Link>
+              </div>
             </div>
           </div>
         </animated.div>

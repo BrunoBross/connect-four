@@ -6,6 +6,10 @@
   background-color: transparent;
 }
 
+#modal:focus {
+  outline: none;
+}
+
 li {
   counter-increment: custom;
 }

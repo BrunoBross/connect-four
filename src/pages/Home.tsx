@@ -46,37 +46,39 @@ export default function Home() {
       )}
     >
       <animated.div style={contentAnimation}>
-        <div className="flex flex-col w-[500px] h-[600px] gap-20 bg-background-1 border-[3px] border-b-8 border-black rounded-[2rem] items-center justify-center">
-          <img src={logo} alt="logo" />
-          <div className="flex flex-col w-full items-center gap-3">
-            <Link
-              className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
-              to="/game"
-              state={{ type: "cpu" }}
-            >
-              <p className="uppercase text-white font-space text-2xl font-bold">
-                Play vs CPU
-              </p>
-              <img src={playerVsCpu} alt="playerVsCpu" />
-            </Link>
-            <Link
-              className="flex w-[85%] h-24 items-center justify-between bg-yellow p-3 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
-              to="/game"
-              state={{ type: "player" }}
-            >
-              <p className="uppercase text-black font-space text-2xl font-bold">
-                Play vs Player
-              </p>
-              <img src={playerVsPlayer} alt="playerVsCpu" />
-            </Link>
-            <button
-              className="flex w-[85%] h-24 items-center justify-between bg-white p-3 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
-              onClick={toggleModal}
-            >
-              <p className="uppercase text-black font-space text-2xl font-bold">
-                GAMERULES
-              </p>
-            </button>
+        <div className="flex flex-col w-[450px] h-[550px] bg-background-1 border-[3px] border-black shadow-layout rounded-3xl items-center justify-center">
+          <div className="flex flex-col h-full w-full py-10 items-center justify-around">
+            <img src={logo} alt="logo" className="w-20" />
+            <div className="flex flex-col w-full items-center gap-5">
+              <Link
+                className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                to="/game"
+                state={{ type: "cpu" }}
+              >
+                <p className="uppercase text-white font-space text-2xl font-bold">
+                  Play vs CPU
+                </p>
+                <img src={playerVsCpu} alt="playerVsCpu" />
+              </Link>
+              <Link
+                className="flex w-[85%] h-24 items-center justify-between bg-yellow p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                to="/game"
+                state={{ type: "player" }}
+              >
+                <p className="uppercase text-black font-space text-2xl font-bold">
+                  Play vs Player
+                </p>
+                <img src={playerVsPlayer} alt="playerVsCpu" />
+              </Link>
+              <button
+                className="flex w-[85%] h-24 items-center justify-between bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                onClick={toggleModal}
+              >
+                <p className="uppercase text-black font-space text-2xl font-bold">
+                  GAMERULES
+                </p>
+              </button>
+            </div>
           </div>
         </div>
       </animated.div>
@@ -91,7 +93,7 @@ export default function Home() {
         shouldCloseOnOverlayClick={false}
       >
         <animated.div style={modalAnimation}>
-          <div className="flex flex-col w-[500px] h-[500px] p-8 pb-16 bg-white border-[3px] border-b-8 border-black rounded-[2rem] items-center justify-center">
+          <div className="flex flex-col w-[500px] h-[500px] p-8 pb-16 bg-white border-[3px] border-black rounded-3xl shadow-layout items-center justify-center">
             <h1 className="font-space text-[4rem] uppercase font-bold">
               Rules
             </h1>
