@@ -7,12 +7,13 @@ interface TurnBackgroundProps {
   currentPlayer: number;
   isGameRunning: boolean;
   switchPlayer: () => void;
+  randomPlay: () => void;
 }
 
 const defaultTime = 30;
 
 export default function TurnBackground(props: TurnBackgroundProps) {
-  const { currentPlayer, isGameRunning, switchPlayer } = props;
+  const { currentPlayer, isGameRunning, switchPlayer, randomPlay } = props;
   const [timer, setTimer] = useState(defaultTime);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function TurnBackground(props: TurnBackgroundProps) {
       const interval = setInterval(() => {
         if (timer - 1 < 0) {
           setTimer(defaultTime);
+          randomPlay();
           return switchPlayer();
         }
 
@@ -32,7 +34,7 @@ export default function TurnBackground(props: TurnBackgroundProps) {
 
       return () => clearInterval(interval);
     }
-  }, [isGameRunning, timer, switchPlayer]);
+  }, [isGameRunning, timer, switchPlayer, randomPlay]);
 
   return (
     <div className="absolute flex flex-col items-center justify-center">

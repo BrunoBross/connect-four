@@ -44,6 +44,7 @@ export default function Game() {
     winner === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
+    setGameMatrix(defaultGameMatrix);
   }, [currentPlayer]);
 
   const verifyColumns = useCallback(() => {
@@ -65,9 +66,30 @@ export default function Game() {
     });
   }, [gameMatrix, notifyWinner]);
 
+  const verifyRows = useCallback(() => {
+    for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
+      let prev = 0;
+      let count = 1;
+      gameMatrix.forEach((column) => {
+        console.log(column[rowIdx]);
+        const item = column[rowIdx];
+        if (item !== 0 && item === prev) {
+          count++;
+          if (count >= 4) {
+            return notifyWinner();
+          }
+        } else {
+          count = 1;
+        }
+        prev = item;
+      });
+    }
+  }, [gameMatrix, notifyWinner]);
+
   const verifyWinner = useCallback(() => {
     verifyColumns();
-  }, [verifyColumns]);
+    verifyRows();
+  }, [verifyColumns, verifyRows]);
 
   useEffect(() => {
     verifyWinner();
@@ -86,6 +108,11 @@ export default function Game() {
         return setGameMatrix(newGameMatrix);
       }
     }
+  };
+
+  const randomPlay = () => {
+    const columnIdx = Math.floor(Math.random() * 6);
+    makePlay(columnIdx);
   };
 
   const switchPlayer = () => {
@@ -166,6 +193,7 @@ export default function Game() {
               currentPlayer={currentPlayer}
               isGameRunning={isGameRunning}
               switchPlayer={switchPlayer}
+              randomPlay={randomPlay}
             />
           ) : (
             <ReadyBackground
