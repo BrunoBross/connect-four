@@ -52,18 +52,20 @@ export default function Home() {
             <Link
               className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
               to="/game"
+              state={{ type: "cpu" }}
             >
               <p className="uppercase text-white font-space text-2xl font-bold">
-                Player vs CPU
+                Play vs CPU
               </p>
               <img src={playerVsCpu} alt="playerVsCpu" />
             </Link>
             <Link
               className="flex w-[85%] h-24 items-center justify-between bg-yellow p-3 px-5 border-[3px] border-b-8 rounded-3xl border-black transition-colors hover:border-background-0"
               to="/game"
+              state={{ type: "player" }}
             >
               <p className="uppercase text-black font-space text-2xl font-bold">
-                Player vs Player
+                Play vs Player
               </p>
               <img src={playerVsPlayer} alt="playerVsCpu" />
             </Link>
@@ -89,11 +91,11 @@ export default function Home() {
         shouldCloseOnOverlayClick={false}
       >
         <animated.div style={modalAnimation}>
-          <div className="flex flex-col w-[500px] h-[500px] bg-white border-[3px] border-b-8 border-black rounded-[2rem] items-center justify-center">
+          <div className="flex flex-col w-[500px] h-[500px] p-8 pb-16 bg-white border-[3px] border-b-8 border-black rounded-[2rem] items-center justify-center">
             <h1 className="font-space text-[4rem] uppercase font-bold">
               Rules
             </h1>
-            <div className="flex flex-col gap-2 p-5">
+            <div className="flex flex-col gap-2">
               <p className="uppercase font-space text-background-1 font-bold">
                 Objective
               </p>
