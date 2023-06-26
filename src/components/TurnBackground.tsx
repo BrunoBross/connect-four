@@ -8,12 +8,19 @@ interface TurnBackgroundProps {
   isGameRunning: boolean;
   switchPlayer: () => void;
   randomPlay: () => void;
+  isModalOpen: boolean;
 }
 
 const defaultTime = 30;
 
 export default function TurnBackground(props: TurnBackgroundProps) {
-  const { currentPlayer, isGameRunning, switchPlayer, randomPlay } = props;
+  const {
+    currentPlayer,
+    isGameRunning,
+    switchPlayer,
+    randomPlay,
+    isModalOpen,
+  } = props;
   const [timer, setTimer] = useState(defaultTime);
 
   useEffect(() => {
@@ -29,22 +36,18 @@ export default function TurnBackground(props: TurnBackgroundProps) {
           return switchPlayer();
         }
 
-        setTimer((prevState) => prevState - 1);
+        if (!isModalOpen) {
+          setTimer((prevState) => prevState - 1);
+        }
       }, 1000);
 
       return () => clearInterval(interval);
     }
-  }, [isGameRunning, timer, switchPlayer, randomPlay]);
+  }, [isGameRunning, timer, switchPlayer, randomPlay, isModalOpen]);
 
   return (
-    <div className="absolute flex flex-col items-center justify-center">
-      <img
-        src={currentPlayer === 1 ? turnBackgroundRed : turnBackgroundYellow}
-        alt="turnBackground"
-        className="items-center justify-center"
-        width={170}
-      />
-      <div className="flex flex-col absolute items-center justify-center">
+    <div className="flex flex-col items-center justify-center">
+      <div className="absolute z-[3] text-center">
         <p
           className={clsx("font-space font-bold uppercase transition-colors", {
             "text-white": currentPlayer === 1,
@@ -62,6 +65,11 @@ export default function TurnBackground(props: TurnBackgroundProps) {
           {timer}s
         </h1>
       </div>
+      <img
+        src={currentPlayer === 1 ? turnBackgroundRed : turnBackgroundYellow}
+        alt="turnBackground"
+        width={200}
+      />
     </div>
   );
 }

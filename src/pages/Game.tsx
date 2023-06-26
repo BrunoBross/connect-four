@@ -1,21 +1,14 @@
-import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-import markerRed from "../img/marker-red.svg";
-import markerYellow from "../img/marker-yellow.svg";
-import ReadyBackground from "../components/ReadyBackground";
-import TurnBackground from "../components/TurnBackground";
 import Scoreboard from "../components/Scoreboard";
 import GameHeader from "../components/GameHeader";
+import Gameboard from "../components/Gameboard";
+import GameContainer from "../components/GameContainer";
+import Modal from "../components/Modal";
 
-interface RenderColumnProps {
-  row: number[];
-  columnIdx: number;
-}
-
-const circleSize = "4.5rem";
 const defaultGameMatrix = [
+  [0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0],
@@ -25,34 +18,39 @@ const defaultGameMatrix = [
 ];
 
 export default function Game() {
-  const location = useLocation();
-  const { type } = location.state;
+  const { type } = useParams();
 
   const [gameMatrix, setGameMatrix] = useState(defaultGameMatrix);
   const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [winner, setWinner] = useState(0);
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [playerOnePoints, setPlayerOnePoints] = useState(0);
   const [playerTwoPoints, setPlayerTwoPoints] = useState(0);
   const [isVsPlayer, setIsVsPlayer] = useState(false);
+
+  const [isModalWinnerOpen, setIsModalWinnerOpen] = useState(false);
+  const [isModalMenuOpen, setIsModalMenuOpen] = useState(false);
 
   useEffect(() => {
     type === "player" && setIsVsPlayer(true);
   }, [type]);
 
   const notifyWinner = useCallback(() => {
-    const winner = currentPlayer === 1 ? 2 : 1;
+    const playerWinner = currentPlayer === 1 ? 2 : 1;
+    setWinner(playerWinner);
     winner === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
     setGameMatrix(defaultGameMatrix);
-  }, [currentPlayer]);
+    setIsModalWinnerOpen(true);
+  }, [currentPlayer, winner]);
 
   const verifyColumns = useCallback(() => {
-    gameMatrix.forEach((column) => {
+    for (let colIdx = 0; colIdx < gameMatrix[0].length; colIdx++) {
       let prev = 0;
       let count = 1;
-      for (let index = column.length - 1; index >= 0; index--) {
-        const item = column[index];
+      for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
+        const item = gameMatrix[rowIdx][colIdx];
         if (item !== 0 && item === prev) {
           count++;
           if (count >= 4) {
@@ -63,16 +61,15 @@ export default function Game() {
         }
         prev = item;
       }
-    });
+    }
   }, [gameMatrix, notifyWinner]);
 
   const verifyRows = useCallback(() => {
     for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
       let prev = 0;
       let count = 1;
-      gameMatrix.forEach((column) => {
-        console.log(column[rowIdx]);
-        const item = column[rowIdx];
+      for (let colIdx = 0; colIdx < gameMatrix[rowIdx].length; colIdx++) {
+        const item = gameMatrix[rowIdx][colIdx];
         if (item !== 0 && item === prev) {
           count++;
           if (count >= 4) {
@@ -82,18 +79,75 @@ export default function Game() {
           count = 1;
         }
         prev = item;
-      });
+      }
+    }
+  }, [gameMatrix, notifyWinner]);
+
+  const verifyMainDiagonals = useCallback(() => {
+    for (let startCol = 0; startCol <= gameMatrix[0].length - 4; startCol++) {
+      for (let startRow = gameMatrix.length - 1; startRow >= 3; startRow--) {
+        const item = gameMatrix[startRow][startCol];
+        if (item !== 0) {
+          let count = 1;
+          let colIdx = startCol + 1;
+          let rowIdx = startRow - 1;
+          while (
+            colIdx < gameMatrix[0].length &&
+            rowIdx >= 0 &&
+            gameMatrix[rowIdx][colIdx] === item
+          ) {
+            count++;
+            if (count >= 4) {
+              return notifyWinner();
+            }
+            colIdx++;
+            rowIdx--;
+          }
+        }
+      }
+    }
+  }, [gameMatrix, notifyWinner]);
+
+  const verifySecondaryDiagonals = useCallback(() => {
+    for (let startCol = gameMatrix[0].length - 1; startCol >= 3; startCol--) {
+      for (let startRow = gameMatrix.length - 1; startRow >= 3; startRow--) {
+        const item = gameMatrix[startRow][startCol];
+        if (item !== 0) {
+          let count = 1;
+          let colIdx = startCol - 1;
+          let rowIdx = startRow - 1;
+          while (
+            colIdx >= 0 &&
+            rowIdx >= 0 &&
+            gameMatrix[rowIdx][colIdx] === item
+          ) {
+            count++;
+            if (count >= 4) {
+              return notifyWinner();
+            }
+            colIdx--;
+            rowIdx--;
+          }
+        }
+      }
     }
   }, [gameMatrix, notifyWinner]);
 
   const verifyWinner = useCallback(() => {
     verifyColumns();
     verifyRows();
-  }, [verifyColumns, verifyRows]);
+    verifyMainDiagonals();
+    verifySecondaryDiagonals();
+  }, [
+    verifyColumns,
+    verifyRows,
+    verifyMainDiagonals,
+    verifySecondaryDiagonals,
+  ]);
 
   useEffect(() => {
     verifyWinner();
-  }, [verifyWinner, gameMatrix]);
+  }, [gameMatrix, verifyWinner]);
 
   const makePlay = (columnIdx: number) => {
     if (!isGameRunning) {
@@ -131,46 +185,37 @@ export default function Game() {
     setPlayerTwoPoints(0);
   };
 
-  const RenderColumn = (props: RenderColumnProps) => {
-    const { row, columnIdx } = props;
-    const [isHovering, setIsHovering] = useState(false);
-
-    return (
-      <div
-        className={clsx("flex flex-col relative gap-3 w-full items-center", {
-          "cursor-pointer": isGameRunning,
-        })}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        onClick={() => makePlay(columnIdx)}
-      >
-        {isGameRunning && isHovering && (
-          <img
-            src={currentPlayer === 1 ? markerRed : markerYellow}
-            alt="marker"
-            className="absolute -top-14 animate-bounce"
-          />
-        )}
-        {row.map((element, rowIdx) => {
-          return (
-            <div
-              className={clsx("border-[3px] border-black rounded-full", {
-                "bg-background-0 border-t-[14px]": element === 0,
-                "bg-pink border-t-8": element === 1,
-                "bg-yellow border-t-8": element === 2,
-              })}
-              style={{ width: circleSize, height: circleSize }}
-              key={rowIdx}
-            />
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
-    <div className="w-[100vw] h-[100vh] gap-12 flex flex-col bg-background-1 pt-[6rem] items-center">
-      <GameHeader resetGame={resetGame} />
+    <GameContainer>
+      <Modal
+        isModalOpen={isModalWinnerOpen}
+        setIsModalOpen={setIsModalWinnerOpen}
+      >
+        <>
+          <h1
+            className="font-space text-[4rem] text-white uppercase font-bold
+              "
+          >
+            Player {winner} win
+          </h1>
+          <div className="flex flex-col w-full items-center gap-5">
+            <button
+              className="flex w-[85%] h-24 items-center justify-between bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+              onClick={() => setIsModalWinnerOpen(false)}
+            >
+              <p className="uppercase text-black font-space text-2xl font-bold">
+                Continue Game
+              </p>
+            </button>
+          </div>
+        </>
+      </Modal>
+
+      <GameHeader
+        resetGame={resetGame}
+        isModalMenuOpen={isModalMenuOpen}
+        setIsModalMenuOpen={setIsModalMenuOpen}
+      />
 
       <Scoreboard
         playerOnePoints={playerOnePoints}
@@ -178,33 +223,16 @@ export default function Game() {
         isVsPlayer={isVsPlayer}
       />
 
-      <div className="w-[40rem] h-[35rem] z-10 bg-white border-[3px] shadow-layout border-black rounded-3xl">
-        <div className="flex w-full p-3">
-          {gameMatrix.map((row, columnIdx) => {
-            return (
-              <RenderColumn row={row} columnIdx={columnIdx} key={columnIdx} />
-            );
-          })}
-        </div>
-
-        <div className="flex relative justify-center">
-          {isGameRunning ? (
-            <TurnBackground
-              currentPlayer={currentPlayer}
-              isGameRunning={isGameRunning}
-              switchPlayer={switchPlayer}
-              randomPlay={randomPlay}
-            />
-          ) : (
-            <ReadyBackground
-              currentPlayer={currentPlayer}
-              handleStartGame={handleStartGame}
-            />
-          )}
-        </div>
-      </div>
-
-      <div className="absolute w-[100vw] h-[30vh] bg-background-0 bottom-0 rounded-t-[4rem] " />
-    </div>
+      <Gameboard
+        gameMatrix={gameMatrix}
+        currentPlayer={currentPlayer}
+        makePlay={makePlay}
+        isGameRunning={isGameRunning}
+        handleStartGame={handleStartGame}
+        randomPlay={randomPlay}
+        switchPlayer={switchPlayer}
+        isModalOpen={isModalWinnerOpen || isModalMenuOpen}
+      />
+    </GameContainer>
   );
 }

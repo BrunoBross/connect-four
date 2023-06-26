@@ -10,8 +10,8 @@ export default function App() {
   return (
     <Routes location={location}>
       <Route path="/" element={<Home />} />
-      <Route path="/game" element={<Game />} />
-      <Route path="*" element={<h1>Not Found</h1>} />
+      <Route path="/game/:type" element={<Game />} />
+      <Route path="*" element={<Home />} />
     </Routes>
   );
 }

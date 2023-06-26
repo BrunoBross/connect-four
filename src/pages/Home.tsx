@@ -52,8 +52,7 @@ export default function Home() {
             <div className="flex flex-col w-full items-center gap-5">
               <Link
                 className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-                to="/game"
-                state={{ type: "cpu" }}
+                to="/game/cpu"
               >
                 <p className="uppercase text-white font-space text-2xl font-bold">
                   Play vs CPU
@@ -62,8 +61,7 @@ export default function Home() {
               </Link>
               <Link
                 className="flex w-[85%] h-24 items-center justify-between bg-yellow p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-                to="/game"
-                state={{ type: "player" }}
+                to="/game/player"
               >
                 <p className="uppercase text-black font-space text-2xl font-bold">
                   Play vs Player
