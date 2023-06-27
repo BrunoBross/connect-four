@@ -1,10 +1,16 @@
-import clsx from "clsx";
 import { useState } from "react";
 
 import markerRed from "../img/marker-red.svg";
 import markerYellow from "../img/marker-yellow.svg";
 import TurnBackground from "./TurnBackground";
 import ReadyBackground from "./ReadyBackground";
+
+import whiteBoard from "../img/board-layer-white-large.svg";
+import boardShadow from "../img/board-layer-black-large.svg";
+
+import { v4 as uuid } from "uuid";
+import clsx from "clsx";
+import GameboardPieces from "./GameboardPieces";
 
 interface GameboardProps {
   gameMatrix: number[][];
@@ -16,13 +22,6 @@ interface GameboardProps {
   handleStartGame: () => void;
   isModalOpen: boolean;
 }
-
-interface RenderColumnProps {
-  column: number[];
-  columnIdx: number;
-}
-
-const circleSize = "4.5rem";
 
 export default function Gameboard(props: GameboardProps) {
   const {
@@ -36,84 +35,54 @@ export default function Gameboard(props: GameboardProps) {
     isModalOpen,
   } = props;
 
-  const RenderPieces = () => {
-    return (
-      <div className="flex w-full h-[95%] py-4 px-2 justify-between z-[20]">
-        {gameMatrix.map((column, columnIdx) => {
-          return (
-            <RenderColumns
-              column={column}
-              columnIdx={columnIdx}
-              key={columnIdx}
-            />
-          );
-        })}
-      </div>
-    );
-  };
-
-  const RenderColumns = (props: RenderColumnProps) => {
-    const { column, columnIdx } = props;
-    const [isHovering, setIsHovering] = useState(false);
-
-    return (
-      <div
-        className={clsx(
-          "flex flex-col w-full relative justify-between items-center",
-          {
-            "cursor-pointer": isGameRunning,
-          }
-        )}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        onClick={() => makePlay(columnIdx)}
-      >
-        {isGameRunning && isHovering && (
-          <img
-            src={currentPlayer === 1 ? markerRed : markerYellow}
-            alt="marker"
-            className="absolute -top-14 animate-bounce"
-          />
-        )}
-        {column.map((element, columnIdx) => {
-          return (
-            <div
-              className={clsx("border-[3px] border-black rounded-full", {
-                "bg-background-1 border-t-[14px]": element === 0,
-                "bg-pink border-t-8": element === 1,
-                "bg-yellow border-t-8": element === 2,
-              })}
-              style={{ width: circleSize, height: circleSize }}
-              key={columnIdx}
-            />
-          );
-        })}
-      </div>
-    );
-  };
+  const [columnHoveringIdx, setColumnHoveringIdx] = useState(0);
 
   return (
-    <div className="w-[40rem] h-[35rem] z-10 border-[3px] bg-white shadow-layout border-black rounded-3xl">
-      <div className="flex relative justify-center">
-        <div className="absolute -bottom-[43rem]">
-          {isGameRunning ? (
-            <TurnBackground
-              currentPlayer={currentPlayer}
-              isGameRunning={isGameRunning}
-              switchPlayer={switchPlayer}
-              randomPlay={randomPlay}
-              isModalOpen={isModalOpen}
-            />
-          ) : (
-            <ReadyBackground
-              currentPlayer={currentPlayer}
-              handleStartGame={handleStartGame}
-            />
-          )}
-        </div>
+    <div className="flex justify-center relative">
+      <img src={whiteBoard} alt="" className="absolute z-20" />
+      <img src={boardShadow} alt="" className="z-10" />
+      <div className="flex absolute z-30 w-full h-full p-4 pb-[4.12rem] gap-4">
+        {gameMatrix.map((_, columnIdx) => {
+          return (
+            <div
+              className={clsx("flex flex-1 flex-col items-center gap-3", {
+                "cursor-pointer": isGameRunning,
+                "cursor-not-allowed": !isGameRunning,
+              })}
+              onMouseEnter={() => setColumnHoveringIdx(columnIdx)}
+              onClick={() => makePlay(columnIdx)}
+              key={uuid()}
+            >
+              {isGameRunning && columnHoveringIdx === columnIdx && (
+                <img
+                  src={currentPlayer === 1 ? markerRed : markerYellow}
+                  alt="marker"
+                  className="absolute -top-5 animate-bounce"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      <RenderPieces />
+      <GameboardPieces gameMatrix={gameMatrix} makePlay={makePlay} />
+
+      <div className="absolute -bottom-[7rem] z-30">
+        {isGameRunning ? (
+          <TurnBackground
+            currentPlayer={currentPlayer}
+            isGameRunning={isGameRunning}
+            switchPlayer={switchPlayer}
+            randomPlay={randomPlay}
+            isModalOpen={isModalOpen}
+          />
+        ) : (
+          <ReadyBackground
+            currentPlayer={currentPlayer}
+            handleStartGame={handleStartGame}
+          />
+        )}
+      </div>
     </div>
   );
 }
