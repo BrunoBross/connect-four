@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 interface ReadyBackgroundProps {
   currentPlayer: number;
   handleStartGame: () => void;
@@ -7,7 +9,16 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
   const { currentPlayer, handleStartGame } = props;
 
   return (
-    <div className="flex flex-col gap-1 items-center justify-center bg-white px-5 py-3 border-[3px] shadow-layout border-black rounded-[2rem] ">
+    <motion.div
+      className="flex flex-col gap-1 items-center justify-center bg-white px-5 py-3 border-[3px] shadow-layout border-black rounded-[2rem] "
+      animate={{ y: 0 }}
+      transition={{
+        from: 1500,
+        duration: 1,
+        type: "spring",
+      }}
+      exit={{ y: 1500 }}
+    >
       <p
         className={
           "font-space font-bold text-black uppercase transition-colors"
@@ -28,6 +39,6 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
       >
         Play
       </button>
-    </div>
+    </motion.div>
   );
 }

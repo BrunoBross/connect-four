@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 import "./Home.css";
 import { animated, easings, useSpring } from "react-spring";
 
@@ -46,7 +48,15 @@ export default function Home() {
       )}
     >
       <animated.div style={contentAnimation}>
-        <div className="flex flex-col w-[90vw] sm:w-[450px] h-[550px] bg-background-1 border-[3px] border-black shadow-layout rounded-3xl items-center justify-center">
+        <motion.div
+          className="flex flex-col w-[90vw] sm:w-[450px] h-[550px] bg-background-1 border-[3px] border-black shadow-layout rounded-3xl items-center justify-center"
+          animate={{ y: 1 }}
+          transition={{
+            from: -1000,
+            duration: 1,
+            type: "spring",
+          }}
+        >
           <div className="flex flex-col h-full w-full py-10 items-center justify-around">
             <img src={logo} alt="logo" className="w-20" />
             <div className="flex flex-col w-full items-center gap-5">
@@ -86,7 +96,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </animated.div>
 
       <ReactModal

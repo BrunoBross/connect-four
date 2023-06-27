@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 import playerOne from "../img/player-one.svg";
 import playerTwo from "../img/player-two.svg";
 import cpu from "../img/cpu.svg";
@@ -19,7 +21,15 @@ export default function Scoreboard(props: ScoreboardProps) {
   return (
     <div className="flex absolute bottom-0 h-screen w-full justify-center items-end lg:items-center">
       <div className="flex relative lg:w-[85%] xl:w-[70%] 2xl:w-[60vw] w-full justify-around lg:justify-between gap-2 pb-4 z-10">
-        <div className="flex flex-col gap-1 items-center bg-white w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl ">
+        <motion.div
+          className="flex flex-col gap-1 items-center bg-white w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl"
+          animate={{ x: 0 }}
+          transition={{
+            from: -1000,
+            duration: 0.7,
+            type: "spring",
+          }}
+        >
           <div className="flex absolute -top-8 w-16 h-16 justify-center">
             <img src={playerOne} alt="playerImg" />
           </div>
@@ -34,9 +44,17 @@ export default function Scoreboard(props: ScoreboardProps) {
           <h1 className={"font-space font-bold text-6xl transition-colors"}>
             {playerOnePoints}
           </h1>
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col gap-1 items-center bg-white w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl ">
+        <motion.div
+          className="flex flex-col gap-1 items-center bg-white w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl "
+          animate={{ x: 0 }}
+          transition={{
+            from: 1000,
+            duration: 0.7,
+            type: "spring",
+          }}
+        >
           <div className="flex absolute -top-8 w-16 h-16 justify-center">
             <img src={isVsPlayer ? playerTwo : cpu} alt="playerImg" />
           </div>
@@ -50,7 +68,7 @@ export default function Scoreboard(props: ScoreboardProps) {
           <h1 className={"font-space font-bold text-6xl transition-colors"}>
             {playerTwoPoints}
           </h1>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 import clsx from "clsx";
 import turnBackgroundRed from "../img/turn-background-red.svg";
 import turnBackgroundYellow from "../img/turn-background-yellow.svg";
@@ -46,7 +48,15 @@ export default function TurnBackground(props: TurnBackgroundProps) {
   }, [isGameRunning, timer, switchPlayer, randomPlay, isModalOpen]);
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <motion.div
+      className="flex flex-col items-center justify-center"
+      animate={{ y: 0 }}
+      transition={{
+        from: 1500,
+        duration: 1,
+        type: "spring",
+      }}
+    >
       <div className="absolute z-[3] text-center">
         <p
           className={clsx("font-space font-bold uppercase transition-colors", {
@@ -70,6 +80,6 @@ export default function TurnBackground(props: TurnBackgroundProps) {
         alt="turnBackground"
         width={200}
       />
-    </div>
+    </motion.div>
   );
 }

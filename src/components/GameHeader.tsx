@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 import "./Modal.css";
 import logo from "../img/logo.svg";
 import { Dispatch, SetStateAction } from "react";
@@ -22,7 +24,16 @@ export default function GameHeader(props: GameHeaderProps) {
 
   return (
     <>
-      <div className="flex flex-col xs:flex-row w-[90%] md:w-[40rem] justify-between items-center gap-3 xs:gap-0 z-[100]">
+      <motion.div
+        className="flex flex-col xs:flex-row w-[90%] md:w-[40rem] justify-between items-center gap-3 xs:gap-0 z-[100]"
+        animate={{ y: 0 }}
+        transition={{
+          from: -500,
+          delay: 0.3,
+          duration: 1,
+          type: "spring",
+        }}
+      >
         <div
           className="flex xs:hidden w-16 h-16 justify-center"
           onClick={() => setIsModalMenuOpen(true)}
@@ -45,7 +56,7 @@ export default function GameHeader(props: GameHeaderProps) {
         >
           Restart
         </button>
-      </div>
+      </motion.div>
       <Modal isModalOpen={isModalMenuOpen} setIsModalOpen={setIsModalMenuOpen}>
         <h1
           className="font-space text-[4rem] text-white uppercase font-bold
