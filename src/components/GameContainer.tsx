@@ -15,11 +15,12 @@ export default function GameContainer(props: GameContainerProps) {
 
       <motion.div
         className="hidden md:block heightXs:hidden absolute w-[100vw] h-[36vh] bg-background-0 bottom-0 rounded-t-[4rem] z-10 "
-        animate={{ y: 65 }}
+        animate={{ y: 80 }}
         transition={{
           from: 1000,
           delay: 0.3,
           duration: 1.5,
+          bounce: 0.2,
           type: "spring",
         }}
       />

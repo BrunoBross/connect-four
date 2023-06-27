@@ -9,11 +9,11 @@ export default function GameboardPieces(props: GameboardPiecesProps) {
   const { gameMatrix, makePlay } = props;
 
   return (
-    <div className="flex absolute z-[15] w-full h-full justify-center gap-4 px-4 pt-4 pb-16">
+    <div className="flex z-[15] w-full h-full gap-[1vw] px-[0.9vw] pt-[0.9vw] pb-[3.5vw]">
       {gameMatrix.map((column, columnIdx) => {
         return (
           <div
-            className="flex w-20 flex-col items-center cursor-pointer gap-[0.8rem]"
+            className="flex flex-1 flex-col gap-[1vw] cursor-pointer"
             onClick={() => makePlay(columnIdx)}
             key={columnIdx}
           >

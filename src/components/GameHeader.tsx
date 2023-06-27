@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 
-import "./Modal.css";
 import logo from "../img/logo.svg";
 import { Dispatch, SetStateAction } from "react";
 import { Link } from "react-router-dom";

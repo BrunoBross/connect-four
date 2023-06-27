@@ -39,10 +39,10 @@ export default function Gameboard(props: GameboardProps) {
   const [columnHoveringIdx, setColumnHoveringIdx] = useState(0);
 
   return (
-    <div className="flex justify-center z-20">
-      <div className="flex justify-center relative w-[90%]">
+    <div className="flex w-full justify-center z-20">
+      <div className="flex justify-center relative w-[35vw] h-[32.9vw]">
         <motion.div
-          className="flex"
+          className="flex flex-1 w-full h-full"
           animate={{ y: 1 }}
           transition={{
             from: -1000,
@@ -50,8 +50,11 @@ export default function Gameboard(props: GameboardProps) {
             type: "spring",
           }}
         >
-          <img src={whiteBoard} alt="" className="absolute z-20" />
-          <img src={boardShadow} alt="" className="z-10" />
+          <div className="flex flex-1 w-full h-full">
+            <img src={whiteBoard} alt="" className="absolute w-full z-20" />
+            <img src={boardShadow} alt="" className="absolute w-full z-10" />
+          </div>
+
           <div className="flex absolute z-30 w-full h-full p-4 pb-[4.12rem] gap-4">
             {gameMatrix.map((_, columnIdx) => {
               return (
@@ -68,7 +71,7 @@ export default function Gameboard(props: GameboardProps) {
                     <img
                       src={currentPlayer === 1 ? markerRed : markerYellow}
                       alt="marker"
-                      className="absolute -top-5 animate-bounce"
+                      className="absolute -top-6 animate-bounce z-20"
                     />
                   )}
                 </div>
@@ -77,6 +80,7 @@ export default function Gameboard(props: GameboardProps) {
           </div>
           <GameboardPieces gameMatrix={gameMatrix} makePlay={makePlay} />
         </motion.div>
+
         <div className="absolute -bottom-[9rem] sm:-bottom-[7rem] z-30">
           {isGameRunning ? (
             <TurnBackground
