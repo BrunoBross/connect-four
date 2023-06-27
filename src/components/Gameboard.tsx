@@ -8,7 +8,6 @@ import ReadyBackground from "./ReadyBackground";
 import whiteBoard from "../img/board-layer-white-large.svg";
 import boardShadow from "../img/board-layer-black-large.svg";
 
-import { v4 as uuid } from "uuid";
 import clsx from "clsx";
 import GameboardPieces from "./GameboardPieces";
 
@@ -51,7 +50,7 @@ export default function Gameboard(props: GameboardProps) {
               })}
               onMouseEnter={() => setColumnHoveringIdx(columnIdx)}
               onClick={() => makePlay(columnIdx)}
-              key={uuid()}
+              key={columnIdx}
             >
               {isGameRunning && columnHoveringIdx === columnIdx && (
                 <img

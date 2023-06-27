@@ -1,8 +1,4 @@
-import { v4 as uuid } from "uuid";
-import { motion } from "framer-motion";
-
-import redPiece from "../img/counter-red-large.svg";
-import yellowPiece from "../img/counter-yellow-large.svg";
+import Piece from "./Piece";
 
 interface GameboardPiecesProps {
   gameMatrix: number[][];
@@ -19,28 +15,15 @@ export default function GameboardPieces(props: GameboardPiecesProps) {
           <div
             className="flex flex-1 flex-col items-center cursor-pointer gap-[0.8rem]"
             onClick={() => makePlay(columnIdx)}
-            key={uuid()}
+            key={columnIdx}
           >
             {column.map((row, rowIdx) => {
               return (
-                <div
-                  className="flex flex-1 justify-center items-center rounded-full"
-                  key={uuid()}
-                >
-                  {row !== 0 && (
-                    <motion.img
-                      src={row === 1 ? redPiece : yellowPiece}
-                      animate={{ y: 0 }}
-                      transition={{
-                        from: rowIdx * -100,
-                        duration: 0.5,
-                        type: "spring",
-                        bounce: 0.25,
-                      }}
-                      alt="piece img"
-                    />
-                  )}
-                </div>
+                <Piece
+                  row={row}
+                  rowIdx={rowIdx}
+                  key={`${columnIdx}-${rowIdx}`}
+                />
               );
             })}
           </div>

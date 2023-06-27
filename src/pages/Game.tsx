@@ -42,28 +42,46 @@ export default function Game() {
     playerWinner === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
-    setGameMatrix(defaultGameMatrix);
-    setIsModalWinnerOpen(true);
+    // setGameMatrix(defaultGameMatrix);
+    // setIsModalWinnerOpen(true);
   }, [currentPlayer]);
+
+  const transformMatrixToWinPos = useCallback(
+    (listOfCorrectPiecesPos: number[][]) => {
+      const newGameMatrix = gameMatrix.map((row) => [...row]);
+      listOfCorrectPiecesPos.forEach((element) => {
+        const columnIdx = element[0];
+        const rowIdx = element[1];
+        const player = currentPlayer === 1 ? 2 : 1;
+        newGameMatrix[columnIdx][rowIdx] = player + 2;
+      });
+      setGameMatrix(newGameMatrix);
+    },
+    [currentPlayer, gameMatrix]
+  );
 
   const verifyColumns = useCallback(() => {
     for (let colIdx = 0; colIdx < gameMatrix[0].length; colIdx++) {
       let prev = 0;
       let count = 1;
+      let listOfCorrectPiecesPos = [];
       for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
         const item = gameMatrix[rowIdx][colIdx];
+        listOfCorrectPiecesPos.push([rowIdx, colIdx]);
         if (item !== 0 && item === prev) {
           count++;
           if (count >= 4) {
-            return notifyWinner();
+            notifyWinner();
+            return transformMatrixToWinPos(listOfCorrectPiecesPos);
           }
         } else {
           count = 1;
+          listOfCorrectPiecesPos = [];
         }
         prev = item;
       }
     }
-  }, [gameMatrix, notifyWinner]);
+  }, [gameMatrix, notifyWinner, transformMatrixToWinPos]);
 
   const verifyRows = useCallback(() => {
     for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
