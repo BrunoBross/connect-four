@@ -36,7 +36,7 @@ export default function Gameboard(props: GameboardProps) {
     isModalOpen,
   } = props;
 
-  const RenderBoard = () => {
+  const RenderPieces = () => {
     return (
       <div className="flex w-full h-[95%] py-4 px-2 justify-between z-[20]">
         {gameMatrix.map((column, columnIdx) => {
@@ -113,7 +113,7 @@ export default function Gameboard(props: GameboardProps) {
         </div>
       </div>
 
-      <RenderBoard />
+      <RenderPieces />
     </div>
   );
 }
