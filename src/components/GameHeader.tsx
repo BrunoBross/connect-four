@@ -5,8 +5,6 @@ import { Dispatch, SetStateAction } from "react";
 import { Link } from "react-router-dom";
 import Modal from "./Modal";
 
-import "react-modern-drawer/dist/index.css";
-
 interface GameHeaderProps {
   resetGame: () => void;
   isModalMenuOpen: boolean;
