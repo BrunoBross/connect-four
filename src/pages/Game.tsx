@@ -42,46 +42,28 @@ export default function Game() {
     playerWinner === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
-    // setGameMatrix(defaultGameMatrix);
-    // setIsModalWinnerOpen(true);
+    setGameMatrix(defaultGameMatrix);
+    setIsModalWinnerOpen(true);
   }, [currentPlayer]);
-
-  const transformMatrixToWinPos = useCallback(
-    (listOfCorrectPiecesPos: number[][]) => {
-      const newGameMatrix = gameMatrix.map((row) => [...row]);
-      listOfCorrectPiecesPos.forEach((element) => {
-        const columnIdx = element[0];
-        const rowIdx = element[1];
-        const player = currentPlayer === 1 ? 2 : 1;
-        newGameMatrix[columnIdx][rowIdx] = player + 2;
-      });
-      setGameMatrix(newGameMatrix);
-    },
-    [currentPlayer, gameMatrix]
-  );
 
   const verifyColumns = useCallback(() => {
     for (let colIdx = 0; colIdx < gameMatrix[0].length; colIdx++) {
       let prev = 0;
       let count = 1;
-      let listOfCorrectPiecesPos = [];
       for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
         const item = gameMatrix[rowIdx][colIdx];
-        listOfCorrectPiecesPos.push([rowIdx, colIdx]);
         if (item !== 0 && item === prev) {
           count++;
           if (count >= 4) {
-            notifyWinner();
-            return transformMatrixToWinPos(listOfCorrectPiecesPos);
+            return notifyWinner();
           }
         } else {
           count = 1;
-          listOfCorrectPiecesPos = [];
         }
         prev = item;
       }
     }
-  }, [gameMatrix, notifyWinner, transformMatrixToWinPos]);
+  }, [gameMatrix, notifyWinner]);
 
   const verifyRows = useCallback(() => {
     for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
@@ -211,43 +193,41 @@ export default function Game() {
         setIsModalOpen={setIsModalWinnerOpen}
         backgroundColor={winner === 1 ? "bg-pink" : "bg-yellow"}
       >
-        <>
-          <div>
-            <h1
-              className={clsx(
-                "font-space text-[4rem] uppercase font-bold text-center",
-                {
-                  "text-white": winner === 1,
-                  "text-black": winner === 2,
-                }
-              )}
-            >
-              {isVsPlayer || winner === 1 ? `Player ${winner}` : "CPU"}
-            </h1>
-            <h1
-              className={clsx(
-                "font-space text-[4rem] uppercase font-bold text-center",
-                {
-                  "text-white": winner === 1,
-                  "text-black": winner === 2,
-                }
-              )}
-            >
-              Win
-            </h1>
-          </div>
+        <div>
+          <h1
+            className={clsx(
+              "font-space text-[4rem] uppercase font-bold text-center",
+              {
+                "text-white": winner === 1,
+                "text-black": winner === 2,
+              }
+            )}
+          >
+            {isVsPlayer || winner === 1 ? `Player ${winner}` : "CPU"}
+          </h1>
+          <h1
+            className={clsx(
+              "font-space text-[4rem] uppercase font-bold text-center",
+              {
+                "text-white": winner === 1,
+                "text-black": winner === 2,
+              }
+            )}
+          >
+            Win
+          </h1>
+        </div>
 
-          <div className="flex flex-col w-full items-center gap-5">
-            <button
-              className="flex w-[85%] h-24 items-center justify-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-              onClick={() => setIsModalWinnerOpen(false)}
-            >
-              <p className="uppercase text-black font-space text-2xl font-bold">
-                Continue Game
-              </p>
-            </button>
-          </div>
-        </>
+        <div className="flex flex-col w-full items-center gap-5">
+          <button
+            className="flex w-[85%] h-24 items-center justify-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+            onClick={() => setIsModalWinnerOpen(false)}
+          >
+            <p className="uppercase text-black font-space text-2xl font-bold">
+              Continue Game
+            </p>
+          </button>
+        </div>
       </Modal>
 
       <GameHeader
@@ -260,6 +240,7 @@ export default function Game() {
         playerOnePoints={playerOnePoints}
         playerTwoPoints={playerTwoPoints}
         isVsPlayer={isVsPlayer}
+        isGameRunning={isGameRunning}
       />
 
       <Gameboard

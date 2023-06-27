@@ -19,6 +19,10 @@ module.exports = {
         layout: "0px 0.6rem 0px black",
         layouthover: "0px 0.1rem 0px black",
       },
+      screens: {
+        xs: "440px",
+        heightXs: { raw: "(max-height: 900px)" },
+      },
     },
   },
   plugins: [],

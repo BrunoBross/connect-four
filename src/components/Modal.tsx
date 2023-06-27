@@ -34,8 +34,10 @@ export default function Modal(props: ModalProps) {
   const modalContentClasses = [
     "flex",
     "flex-col",
-    "w-[450px]",
-    "h-[550px]",
+    "w-[90vw]",
+    "h-[80vh]",
+    "xs:w-[450px]",
+    "xs:h-[550px]",
     "gap-6",
     "border-[3px]",
     "shadow-layout",

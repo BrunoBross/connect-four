@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <div
       className={clsx(
-        "w-[100vw] h-[100vh] flex flex-col justify-center items-center transition-colors",
+        "w-screen h-screen flex flex-col justify-center items-center transition-colors",
         {
           "bg-background-0": !modalIsOpen,
           "bg-background-1": modalIsOpen,
@@ -46,7 +46,7 @@ export default function Home() {
       )}
     >
       <animated.div style={contentAnimation}>
-        <div className="flex flex-col w-[450px] h-[550px] bg-background-1 border-[3px] border-black shadow-layout rounded-3xl items-center justify-center">
+        <div className="flex flex-col w-[90vw] sm:w-[450px] h-[550px] bg-background-1 border-[3px] border-black shadow-layout rounded-3xl items-center justify-center">
           <div className="flex flex-col h-full w-full py-10 items-center justify-around">
             <img src={logo} alt="logo" className="w-20" />
             <div className="flex flex-col w-full items-center gap-5">
@@ -57,7 +57,11 @@ export default function Home() {
                 <p className="uppercase text-white font-space text-2xl font-bold">
                   Play vs CPU
                 </p>
-                <img src={playerVsCpu} alt="playerVsCpu" />
+                <img
+                  src={playerVsCpu}
+                  alt="playerVsCpu"
+                  className="hidden xs:block"
+                />
               </Link>
               <Link
                 className="flex w-[85%] h-24 items-center justify-between bg-yellow p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
@@ -66,7 +70,11 @@ export default function Home() {
                 <p className="uppercase text-black font-space text-2xl font-bold">
                   Play vs Player
                 </p>
-                <img src={playerVsPlayer} alt="playerVsCpu" />
+                <img
+                  src={playerVsPlayer}
+                  alt="playerVsCpu"
+                  className="hidden xs:block"
+                />
               </Link>
               <button
                 className="flex w-[85%] h-24 items-center justify-between bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
@@ -91,7 +99,7 @@ export default function Home() {
         shouldCloseOnOverlayClick={false}
       >
         <animated.div style={modalAnimation}>
-          <div className="flex flex-col w-[500px] h-[500px] p-8 pb-16 bg-white border-[3px] border-black rounded-3xl shadow-layout items-center justify-center">
+          <div className="flex flex-col w-[90vw] h-[80vh] xs:w-[500px] xs:h-[500px] p-8 pb-16 bg-white border-[3px] border-black rounded-3xl shadow-layout items-center justify-center">
             <h1 className="font-space text-[4rem] uppercase font-bold">
               Rules
             </h1>
