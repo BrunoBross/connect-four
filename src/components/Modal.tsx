@@ -5,14 +5,17 @@ import { useSpring, animated } from "react-spring";
 interface ModalProps {
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  backgroundColor?: "bg-background-0" | "bg-pink" | "bg-yellow";
+  backgroundColor?: "bg-background-0" | "bg-pink" | "bg-yellow" | "bg-white";
   children: ReactNode;
+  overlay?: boolean;
+  fullChildren?: boolean;
 }
 
 const backgroundColorClasses = {
   "bg-background-0": "bg-background-0",
   "bg-pink": "bg-pink",
   "bg-yellow": "bg-yellow",
+  "bg-white": "bg-white",
 };
 
 export default function Modal(props: ModalProps) {
@@ -21,6 +24,8 @@ export default function Modal(props: ModalProps) {
     setIsModalOpen,
     backgroundColor = "bg-background-0",
     children,
+    overlay = true,
+    fullChildren = false,
   } = props;
 
   const modalAnimation = useSpring({
@@ -28,7 +33,10 @@ export default function Modal(props: ModalProps) {
   });
 
   const modalStyle = {
-    overlay: { backgroundColor: "#00000099", zIndex: 1000 },
+    overlay: {
+      backgroundColor: overlay ? "#00000099" : "transparent",
+      zIndex: 1000,
+    },
   };
 
   const modalContentClasses = [
@@ -42,7 +50,7 @@ export default function Modal(props: ModalProps) {
     "border-[3px]",
     "shadow-layout",
     "border-black",
-    "rounded-[2rem]",
+    "rounded-3xl",
     "items-center",
     "justify-center",
     backgroundColorClasses[backgroundColor] || "",
@@ -58,11 +66,15 @@ export default function Modal(props: ModalProps) {
       id="modal"
     >
       <animated.div style={modalAnimation}>
-        <div className={modalContentClasses}>
-          <div className="flex flex-col h-full w-full py-10 items-center justify-around">
-            {children}
+        {fullChildren ? (
+          children
+        ) : (
+          <div className={modalContentClasses}>
+            <div className="flex flex-col h-full w-full py-10 items-center justify-around">
+              {children}
+            </div>
           </div>
-        </div>
+        )}
       </animated.div>
     </ReactModal>
   );

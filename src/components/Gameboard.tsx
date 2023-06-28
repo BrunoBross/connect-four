@@ -12,6 +12,7 @@ import boardShadow from "../img/board-layer-black-large.svg";
 
 import clsx from "clsx";
 import GameboardPieces from "./GameboardPieces";
+import { RoomInterface } from "../hooks/useRoom";
 
 interface GameboardProps {
   gameMatrix: number[][];
@@ -22,6 +23,9 @@ interface GameboardProps {
   randomPlay: () => void;
   handleStartGame: () => void;
   isModalOpen: boolean;
+  canPlayCondition: boolean;
+  owner?: RoomInterface["owner"];
+  guest?: RoomInterface["guest"];
 }
 
 export default function Gameboard(props: GameboardProps) {
@@ -34,6 +38,9 @@ export default function Gameboard(props: GameboardProps) {
     randomPlay,
     switchPlayer,
     isModalOpen,
+    canPlayCondition,
+    owner,
+    guest,
   } = props;
 
   const [columnHoveringIdx, setColumnHoveringIdx] = useState(0);
@@ -60,20 +67,22 @@ export default function Gameboard(props: GameboardProps) {
               return (
                 <div
                   className={clsx("flex flex-1 flex-col items-center gap-3", {
-                    "cursor-pointer": isGameRunning,
-                    "cursor-not-allowed": !isGameRunning,
+                    "cursor-pointer": isGameRunning && canPlayCondition,
+                    "cursor-not-allowed": !isGameRunning || !canPlayCondition,
                   })}
                   onMouseEnter={() => setColumnHoveringIdx(columnIdx)}
                   onClick={() => makePlay(columnIdx)}
                   key={columnIdx}
                 >
-                  {isGameRunning && columnHoveringIdx === columnIdx && (
-                    <img
-                      src={currentPlayer === 1 ? markerRed : markerYellow}
-                      alt="marker"
-                      className="absolute -top-6 animate-bounce z-20"
-                    />
-                  )}
+                  {isGameRunning &&
+                    columnHoveringIdx === columnIdx &&
+                    canPlayCondition && (
+                      <img
+                        src={currentPlayer === 1 ? markerRed : markerYellow}
+                        alt="marker"
+                        className="absolute -top-6 animate-bounce z-20"
+                      />
+                    )}
                 </div>
               );
             })}
@@ -89,6 +98,8 @@ export default function Gameboard(props: GameboardProps) {
               switchPlayer={switchPlayer}
               randomPlay={randomPlay}
               isModalOpen={isModalOpen}
+              owner={owner}
+              guest={guest}
             />
           ) : (
             <ReadyBackground

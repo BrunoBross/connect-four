@@ -7,8 +7,12 @@ import Gameboard from "../components/Gameboard";
 import GameContainer from "../components/GameContainer";
 import Modal from "../components/Modal";
 import clsx from "clsx";
+import { RoomInterface, useRoom } from "../hooks/useRoom";
+import { onValue, ref } from "firebase/database";
+import { database } from "../config/firebase";
+import { useAuth } from "../contexts/authContext";
 
-const defaultGameMatrix = [
+export const defaultGameMatrix = [
   [0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0],
@@ -19,10 +23,17 @@ const defaultGameMatrix = [
 ];
 
 export default function Game() {
-  const { type } = useParams();
+  const { type, roomId } = useParams();
+  const { updateRoom, assignGuest } = useRoom();
+  const { user } = useAuth();
 
-  const [gameMatrix, setGameMatrix] = useState(defaultGameMatrix);
-  const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [isGuest, setIsGuest] = useState(false);
+
+  const [room, setRoom] = useState<RoomInterface>();
+  const [gameMatrix, setGameMatrix] = useState(
+    room?.gameMatrix || defaultGameMatrix
+  );
+  const [currentPlayer, setCurrentPlayer] = useState(room?.currentPlayer || 1);
   const [winner, setWinner] = useState(0);
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [playerOnePoints, setPlayerOnePoints] = useState(0);
@@ -31,6 +42,40 @@ export default function Game() {
 
   const [isModalWinnerOpen, setIsModalWinnerOpen] = useState(false);
   const [isModalMenuOpen, setIsModalMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (roomId && room && user && room?.owner.id !== user.uid && !room.guest) {
+      const userToAssign = {
+        id: user.uid,
+        name: user.displayName,
+        photoURL: user.photoURL,
+        email: user.email,
+        points: 0,
+        boardId: 2,
+      };
+      setIsGuest(true);
+      assignGuest(roomId, userToAssign);
+    }
+  }, [assignGuest, room, roomId, user]);
+
+  useEffect(() => {
+    if (roomId) {
+      updateRoom(roomId, {
+        gameMatrix: gameMatrix,
+      });
+    }
+  }, [gameMatrix, roomId, updateRoom, playerOnePoints, playerTwoPoints]);
+
+  useEffect(() => {
+    onValue(ref(database, `/room/${roomId}`), (snapshot) => {
+      const data = snapshot.val();
+      setRoom(data);
+      console.log(data);
+      setGameMatrix(data.gameMatrix);
+      setCurrentPlayer(data.currentPlayer);
+      setIsGameRunning(data.isGameRunning);
+    });
+  }, [roomId]);
 
   useEffect(() => {
     type === "player" && setIsVsPlayer(true);
@@ -150,17 +195,27 @@ export default function Game() {
     verifyWinner();
   }, [gameMatrix, verifyWinner]);
 
+  const canPlayCondition =
+    (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
+
   const makePlay = (columnIdx: number) => {
     if (!isGameRunning) {
       return;
     }
 
-    const newGameMatrix = gameMatrix.map((row) => [...row]);
-    for (let index = newGameMatrix.length - 1; index >= 0; index--) {
-      if (newGameMatrix[columnIdx][index] === 0) {
-        newGameMatrix[columnIdx][index] = currentPlayer;
-        switchPlayer();
-        return setGameMatrix(newGameMatrix);
+    if (canPlayCondition) {
+      const newGameMatrix = gameMatrix.map((row) => [...row]);
+      for (let index = newGameMatrix.length - 1; index >= 0; index--) {
+        if (newGameMatrix[columnIdx][index] === 0) {
+          newGameMatrix[columnIdx][index] = currentPlayer;
+          switchPlayer();
+          if (roomId) {
+            updateRoom(roomId, {
+              gameMatrix: newGameMatrix,
+            });
+          }
+          return;
+        }
       }
     }
   };
@@ -171,11 +226,22 @@ export default function Game() {
   };
 
   const switchPlayer = () => {
-    currentPlayer === 1 ? setCurrentPlayer(2) : setCurrentPlayer(1);
+    const newCurrentPlayer = currentPlayer === 1 ? 2 : 1;
+    if (roomId) {
+      updateRoom(roomId, {
+        currentPlayer: newCurrentPlayer,
+      });
+    }
+    setCurrentPlayer(newCurrentPlayer);
   };
 
   const handleStartGame = () => {
     setIsGameRunning(true);
+    if (roomId) {
+      updateRoom(roomId, {
+        isGameRunning: true,
+      });
+    }
   };
 
   const resetGame = () => {
@@ -234,6 +300,7 @@ export default function Game() {
         resetGame={resetGame}
         isModalMenuOpen={isModalMenuOpen}
         setIsModalMenuOpen={setIsModalMenuOpen}
+        roomId={roomId}
       />
 
       <Scoreboard
@@ -241,10 +308,13 @@ export default function Game() {
         playerTwoPoints={playerTwoPoints}
         isVsPlayer={isVsPlayer}
         isGameRunning={isGameRunning}
+        owner={room?.owner}
+        guest={room?.guest}
       />
 
       <Gameboard
         gameMatrix={gameMatrix}
+        canPlayCondition={canPlayCondition}
         currentPlayer={currentPlayer}
         makePlay={makePlay}
         isGameRunning={isGameRunning}
@@ -252,6 +322,8 @@ export default function Game() {
         randomPlay={randomPlay}
         switchPlayer={switchPlayer}
         isModalOpen={isModalWinnerOpen || isModalMenuOpen}
+        owner={room?.owner}
+        guest={room?.guest}
       />
     </GameContainer>
   );

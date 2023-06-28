@@ -4,6 +4,7 @@ import clsx from "clsx";
 import turnBackgroundRed from "../img/turn-background-red.svg";
 import turnBackgroundYellow from "../img/turn-background-yellow.svg";
 import { useEffect, useState } from "react";
+import { RoomInterface } from "../hooks/useRoom";
 
 interface TurnBackgroundProps {
   currentPlayer: number;
@@ -11,6 +12,8 @@ interface TurnBackgroundProps {
   switchPlayer: () => void;
   randomPlay: () => void;
   isModalOpen: boolean;
+  owner?: RoomInterface["owner"];
+  guest?: RoomInterface["guest"];
 }
 
 const defaultTime = 30;
@@ -22,6 +25,8 @@ export default function TurnBackground(props: TurnBackgroundProps) {
     switchPlayer,
     randomPlay,
     isModalOpen,
+    owner,
+    guest,
   } = props;
   const [timer, setTimer] = useState(defaultTime);
 
@@ -64,7 +69,11 @@ export default function TurnBackground(props: TurnBackgroundProps) {
             "text-black": currentPlayer === 2,
           })}
         >
-          Player {currentPlayer}'s turn
+          {owner || guest
+            ? owner?.boardId === currentPlayer
+              ? `${owner.name}'s turn`
+              : `${guest?.name}'s turn`
+            : `Player ${currentPlayer}'s turn`}
         </p>
         <h1
           className={clsx("font-space font-bold text-6xl transition-colors", {

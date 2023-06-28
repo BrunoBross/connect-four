@@ -14,12 +14,20 @@ import { useState } from "react";
 import ReactModal from "react-modal";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
+import Modal from "../components/Modal";
+import { useAuth } from "../contexts/authContext";
+import { useRoom } from "../hooks/useRoom";
 
 ReactModal.setAppElement("#root");
 
 export default function Home() {
+  const { createRoom, joinRoom } = useRoom();
+  const [roomId, setRoomId] = useState<string>("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isHoveringButton, setIsHoveringButton] = useState(false);
+  const { loginWithGoogle, signed, logout } = useAuth();
+
+  const [isModalSelectModeOpen, setIsModalSelectModeOpen] = useState(false);
 
   const toggleModal = () => {
     setModalIsOpen(!modalIsOpen);
@@ -27,14 +35,13 @@ export default function Home() {
   };
 
   const contentAnimation = useSpring({
-    transform: modalIsOpen ? "translateY(-150%)" : "translateY(0%)",
+    transform:
+      modalIsOpen || isModalSelectModeOpen
+        ? "translateY(-150%)"
+        : "translateY(0%)",
     config: {
       easing: easings.easeOutSine,
     },
-  });
-
-  const modalAnimation = useSpring({
-    transform: modalIsOpen ? "translateY(0%)" : "translateY(200%)",
   });
 
   return (
@@ -42,8 +49,8 @@ export default function Home() {
       className={clsx(
         "w-screen h-screen flex flex-col justify-center items-center transition-colors",
         {
-          "bg-background-0": !modalIsOpen,
-          "bg-background-1": modalIsOpen,
+          "bg-background-0": !modalIsOpen && !isModalSelectModeOpen,
+          "bg-background-1": modalIsOpen || isModalSelectModeOpen,
         }
       )}
     >
@@ -73,9 +80,9 @@ export default function Home() {
                   className="hidden xs:block"
                 />
               </Link>
-              <Link
+              <button
                 className="flex w-[85%] h-24 items-center justify-between bg-yellow p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-                to="/game/player"
+                onClick={() => setIsModalSelectModeOpen(true)}
               >
                 <p className="uppercase text-black font-space text-2xl font-bold">
                   Play vs Player
@@ -85,7 +92,7 @@ export default function Home() {
                   alt="playerVsCpu"
                   className="hidden xs:block"
                 />
-              </Link>
+              </button>
               <button
                 className="flex w-[85%] h-24 items-center justify-between bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
                 onClick={toggleModal}
@@ -99,58 +106,128 @@ export default function Home() {
         </motion.div>
       </animated.div>
 
-      <ReactModal
-        isOpen={modalIsOpen}
-        onRequestClose={toggleModal}
-        className="modal"
-        closeTimeoutMS={200}
-        style={{ overlay: { backgroundColor: "transparent" } }}
-        id="modal"
-        shouldCloseOnOverlayClick={false}
+      <Modal
+        isModalOpen={isModalSelectModeOpen}
+        setIsModalOpen={setIsModalSelectModeOpen}
+        overlay={false}
       >
-        <animated.div style={modalAnimation}>
-          <div className="flex flex-col w-[90vw] h-[80vh] xs:w-[500px] xs:h-[500px] p-8 pb-16 bg-white border-[3px] border-black rounded-3xl shadow-layout items-center justify-center">
-            <h1 className="font-space text-[4rem] uppercase font-bold">
-              Rules
-            </h1>
-            <div className="flex flex-col gap-2">
-              <p className="uppercase font-space text-background-1 font-bold">
-                Objective
+        <div className="flex flex-col w-full items-center gap-5">
+          {signed ? (
+            <>
+              <div className="flex w-[85%] h-24 uppercase text-black font-space text-2xl font-bold">
+                <input
+                  type="text"
+                  placeholder="Room Code"
+                  value={roomId}
+                  maxLength={5}
+                  onChange={(event) => setRoomId(event.target.value)}
+                  className="w-full items-center justify-center px-6 bg-white border-[3px] border-r-2  rounded-l-3xl border-black shadow-layout focus:outline-none"
+                />
+                <button
+                  className="w-[50%] items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                  onClick={() => joinRoom(roomId)}
+                >
+                  Join
+                </button>
+              </div>
+              <button
+                className="flex w-[85%] h-24 items-center bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                onClick={createRoom}
+              >
+                <p className="uppercase text-white font-space text-2xl font-bold">
+                  Create Online Match
+                </p>
+              </button>
+            </>
+          ) : (
+            <>
+              <img src={logo} alt="logo" className="w-20" />
+              <button
+                className="flex w-[85%] h-24 items-center bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                onClick={loginWithGoogle}
+              >
+                <p className="uppercase text-white font-space text-2xl font-bold">
+                  Login With Google
+                </p>
+              </button>
+            </>
+          )}
+          <Link
+            className="flex w-[85%] h-24 items-center bg-yellow p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+            to="/game/player"
+          >
+            <p className="uppercase text-black font-space text-2xl font-bold">
+              Create Local Match
+            </p>
+          </Link>
+          <div className="flex w-[85%] gap-3">
+            <button
+              className="flex flex-1 h-24 items-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+              onClick={() => setIsModalSelectModeOpen(false)}
+            >
+              <p className="uppercase text-black font-space text-2xl font-bold">
+                Go Back
               </p>
-              <p className="font-space font-medium">
-                Be the first player to connect 4 of the same colored discs in a
-                row (either vertically, horizontally, or diagonally).
-              </p>
-              <p className="uppercase font-space text-background-1 font-bold">
-                How to play
-              </p>
-              <ol className="flex flex-col gap-2">
-                <li className="font-space font-medium">
-                  Red goes first in the first game.
-                </li>
-                <li className="font-space font-medium">
-                  Players must alternate turns, and only one disc can be dropped
-                  in each turn.
-                </li>
-                <li className="font-space font-medium">
-                  The game ends when there is a 4-in-a-row or a stalemate.
-                </li>
-                <li className="font-space font-medium">
-                  The starter of the previous game goes second on the next game.
-                </li>
-              </ol>
-            </div>
-            <img
-              src={isHoveringButton ? buttonCheckHover : buttonCheck}
-              alt="buttonCheck"
-              onClick={toggleModal}
-              className="absolute -bottom-8 cursor-pointer"
-              onMouseEnter={() => setIsHoveringButton(true)}
-              onMouseLeave={() => setIsHoveringButton(false)}
-            />
+            </button>
+            {signed && (
+              <button
+                className="flex flex-1 h-24 items-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+                onClick={logout}
+              >
+                <p className="uppercase text-black font-space text-2xl font-bold">
+                  Logout
+                </p>
+              </button>
+            )}
           </div>
-        </animated.div>
-      </ReactModal>
+        </div>
+      </Modal>
+
+      <Modal
+        isModalOpen={modalIsOpen}
+        setIsModalOpen={setModalIsOpen}
+        fullChildren
+        overlay={false}
+      >
+        <div className="flex flex-col w-[90vw] h-[80vh] xs:w-[500px] xs:h-[500px] p-8 pb-16 bg-white border-[3px] border-black rounded-3xl shadow-layout items-center justify-center">
+          <h1 className="font-space text-[4rem] uppercase font-bold">Rules</h1>
+          <div className="flex flex-col gap-2">
+            <p className="uppercase font-space text-background-1 font-bold">
+              Objective
+            </p>
+            <p className="font-space font-medium">
+              Be the first player to connect 4 of the same colored discs in a
+              row (either vertically, horizontally, or diagonally).
+            </p>
+            <p className="uppercase font-space text-background-1 font-bold">
+              How to play
+            </p>
+            <ol className="flex flex-col gap-2">
+              <li className="font-space font-medium">
+                Red goes first in the first game.
+              </li>
+              <li className="font-space font-medium">
+                Players must alternate turns, and only one disc can be dropped
+                in each turn.
+              </li>
+              <li className="font-space font-medium">
+                The game ends when there is a 4-in-a-row or a stalemate.
+              </li>
+              <li className="font-space font-medium">
+                The starter of the previous game goes second on the next game.
+              </li>
+            </ol>
+          </div>
+          <img
+            src={isHoveringButton ? buttonCheckHover : buttonCheck}
+            alt="buttonCheck"
+            onClick={toggleModal}
+            className="absolute -bottom-8 cursor-pointer"
+            onMouseEnter={() => setIsHoveringButton(true)}
+            onMouseLeave={() => setIsHoveringButton(false)}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }
