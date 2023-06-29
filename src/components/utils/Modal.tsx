@@ -1,28 +1,25 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 import ReactModal from "react-modal";
 import { useSpring, animated } from "react-spring";
+import { backgroundColors } from "./utils";
 
-interface ModalProps {
+export interface ModalBasicProps {
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  backgroundColor?: "bg-background-0" | "bg-pink" | "bg-yellow" | "bg-white";
+}
+
+interface ModalProps extends ModalBasicProps {
+  bgcolor?: backgroundColors;
   children: ReactNode;
   overlay?: boolean;
   fullChildren?: boolean;
 }
 
-const backgroundColorClasses = {
-  "bg-background-0": "bg-background-0",
-  "bg-pink": "bg-pink",
-  "bg-yellow": "bg-yellow",
-  "bg-white": "bg-white",
-};
-
 export default function Modal(props: ModalProps) {
   const {
     isModalOpen,
     setIsModalOpen,
-    backgroundColor = "bg-background-0",
+    bgcolor = "bg-background-0",
     children,
     overlay = true,
     fullChildren = false,
@@ -39,23 +36,6 @@ export default function Modal(props: ModalProps) {
     },
   };
 
-  const modalContentClasses = [
-    "flex",
-    "flex-col",
-    "w-[90vw]",
-    "h-[80vh]",
-    "xs:w-[450px]",
-    "xs:h-[550px]",
-    "gap-6",
-    "border-[3px]",
-    "shadow-layout",
-    "border-black",
-    "rounded-3xl",
-    "items-center",
-    "justify-center",
-    backgroundColorClasses[backgroundColor] || "",
-  ].join(" ");
-
   return (
     <ReactModal
       isOpen={isModalOpen}
@@ -69,7 +49,9 @@ export default function Modal(props: ModalProps) {
         {fullChildren ? (
           children
         ) : (
-          <div className={modalContentClasses}>
+          <div
+            className={`${bgcolor} flex flex-col w-[90vw] h-[80vh] xs:w-[450px] xs:h-[550px] gap-6 border-[3px] shadow-layout border-black rounded-3xl items-center justify-center`}
+          >
             <div className="flex flex-col h-full w-full py-10 items-center justify-around">
               {children}
             </div>

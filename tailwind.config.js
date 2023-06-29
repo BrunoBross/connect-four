@@ -17,6 +17,7 @@ module.exports = {
       },
       boxShadow: {
         layout: "0px 0.6rem 0px black",
+        img: "0px 0.3rem 0px black",
         layouthover: "0px 0.1rem 0px black",
       },
       screens: {

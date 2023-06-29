@@ -2,17 +2,18 @@ import { motion } from "framer-motion";
 
 import { useState } from "react";
 
-import markerRed from "../img/marker-red.svg";
-import markerYellow from "../img/marker-yellow.svg";
+import markerRed from "../../img/marker-red.svg";
+import markerYellow from "../../img/marker-yellow.svg";
 import TurnBackground from "./TurnBackground";
 import ReadyBackground from "./ReadyBackground";
 
-import whiteBoard from "../img/board-layer-white-large.svg";
-import boardShadow from "../img/board-layer-black-large.svg";
+import whiteBoard from "../../img/board-layer-white-large.svg";
+import boardShadow from "../../img/board-layer-black-large.svg";
 
 import clsx from "clsx";
 import GameboardPieces from "./GameboardPieces";
-import { RoomInterface } from "../hooks/useRoom";
+import { RoomInterface } from "../../hooks/useRoom";
+import { NavigateProps } from "../../hooks/useGameNavigate";
 
 interface GameboardProps {
   gameMatrix: number[][];
@@ -23,6 +24,7 @@ interface GameboardProps {
   randomPlay: () => void;
   handleStartGame: () => void;
   isModalOpen: boolean;
+  type: NavigateProps["type"];
   canPlayCondition: boolean;
   owner?: RoomInterface["owner"];
   guest?: RoomInterface["guest"];
@@ -38,12 +40,19 @@ export default function Gameboard(props: GameboardProps) {
     randomPlay,
     switchPlayer,
     isModalOpen,
+    type,
     canPlayCondition,
     owner,
     guest,
   } = props;
 
   const [columnHoveringIdx, setColumnHoveringIdx] = useState(0);
+
+  const cursorPointerCondition =
+    isGameRunning && (type !== "public" || canPlayCondition);
+
+  const cursorNotAllowedCondition =
+    !isGameRunning || (type === "public" && !canPlayCondition);
 
   return (
     <div className="flex w-full justify-center z-20">
@@ -67,8 +76,8 @@ export default function Gameboard(props: GameboardProps) {
               return (
                 <div
                   className={clsx("flex flex-1 flex-col items-center gap-3", {
-                    "cursor-pointer": isGameRunning && canPlayCondition,
-                    "cursor-not-allowed": !isGameRunning || !canPlayCondition,
+                    "cursor-pointer": cursorPointerCondition,
+                    "cursor-not-allowed": cursorNotAllowedCondition,
                   })}
                   onMouseEnter={() => setColumnHoveringIdx(columnIdx)}
                   onClick={() => makePlay(columnIdx)}
@@ -76,7 +85,7 @@ export default function Gameboard(props: GameboardProps) {
                 >
                   {isGameRunning &&
                     columnHoveringIdx === columnIdx &&
-                    canPlayCondition && (
+                    (canPlayCondition || type !== "public") && (
                       <img
                         src={currentPlayer === 1 ? markerRed : markerYellow}
                         alt="marker"
@@ -105,6 +114,9 @@ export default function Gameboard(props: GameboardProps) {
             <ReadyBackground
               currentPlayer={currentPlayer}
               handleStartGame={handleStartGame}
+              type={type}
+              owner={owner}
+              guest={guest}
             />
           )}
         </div>

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
-import redPiece from "../img/counter-red-large.svg";
-import yellowPiece from "../img/counter-yellow-large.svg";
+import redPiece from "../../img/counter-red-large.svg";
+import yellowPiece from "../../img/counter-yellow-large.svg";
 import clsx from "clsx";
 
 interface PieceProps {

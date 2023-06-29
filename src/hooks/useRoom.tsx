@@ -1,8 +1,8 @@
 import { set, get, ref, update } from "firebase/database";
-import { database, databaseRef } from "../config/firebase";
-import { useNavigate } from "react-router-dom";
+import { database, databaseRef } from "../services/firebase";
 import { useAuth } from "../contexts/authContext";
-import { defaultGameMatrix } from "../pages/Game";
+import { defaultGameMatrix } from "../contexts/gameContext";
+import { useGameNavigate } from "./useGameNavigate";
 
 export interface PlayerInterface {
   id: string;
@@ -19,14 +19,15 @@ export interface RoomInterface {
   guest?: PlayerInterface;
   inProgress: boolean;
   currentPlayer: number;
+  isOpen: boolean;
 }
 
-const generateRoomKey = (): number => {
-  return Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
+const generateRoomKey = (): string => {
+  return String(Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000);
 };
 
 export function useRoom() {
-  const navigate = useNavigate();
+  const { handleNavigateGame } = useGameNavigate();
   const { user } = useAuth();
 
   const assignGuest = (roomId: string, guest: RoomInterface["guest"]) => {
@@ -65,10 +66,14 @@ export function useRoom() {
       .then((snapshot) => {
         if (snapshot.exists()) {
           const rooms = Object.entries(snapshot.val());
-          rooms.forEach((room) => {
-            const roomId_ = room[0];
-            if (roomId_ === roomId) {
-              navigate(`/game/public/${roomId}`);
+          rooms.forEach((room_) => {
+            const roomId_ = room_[0];
+            const room = room_[1] as RoomInterface;
+            if (roomId_ === String(roomId) && room.isOpen && !room.guest) {
+              return handleNavigateGame({
+                type: "public",
+                roomId: roomId,
+              });
             }
           });
         } else {
@@ -97,13 +102,17 @@ export function useRoom() {
       gameMatrix: defaultGameMatrix,
       inProgress: false,
       currentPlayer: 1,
+      isOpen: true,
     };
 
     const roomId = generateRoomKey();
 
     set(ref(database, `/room/${roomId}`), data)
       .then(() => {
-        navigate(`/game/public/${roomId}`);
+        handleNavigateGame({
+          type: "public",
+          roomId: roomId,
+        });
       })
       .catch((error) => {
         console.log(error);

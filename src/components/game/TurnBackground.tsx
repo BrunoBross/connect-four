@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 
 import clsx from "clsx";
-import turnBackgroundRed from "../img/turn-background-red.svg";
-import turnBackgroundYellow from "../img/turn-background-yellow.svg";
+import turnBackgroundRed from "../../img/turn-background-red.svg";
+import turnBackgroundYellow from "../../img/turn-background-yellow.svg";
 import { useEffect, useState } from "react";
-import { RoomInterface } from "../hooks/useRoom";
+import { RoomInterface } from "../../hooks/useRoom";
 
 interface TurnBackgroundProps {
   currentPlayer: number;

@@ -1,35 +1,30 @@
 import { motion } from "framer-motion";
 
-import playerOne from "../img/player-one.svg";
-import playerTwo from "../img/player-two.svg";
-import cpu from "../img/cpu.svg";
-import { useAuth } from "../contexts/authContext";
+import playerOne from "../../img/player-one.svg";
+import playerTwo from "../../img/player-two.svg";
+import cpu from "../../img/cpu.svg";
+import { useAuth } from "../../contexts/authContext";
 import clsx from "clsx";
-import { RoomInterface } from "../hooks/useRoom";
+import { RoomInterface } from "../../hooks/useRoom";
+import { NavigateProps } from "../../hooks/useGameNavigate";
+import { useGame } from "../../contexts/gameContext";
 
 interface ScoreboardProps {
   playerOnePoints: number;
   playerTwoPoints: number;
-  isVsPlayer: boolean;
   isGameRunning: boolean;
+  type: NavigateProps["type"];
   owner?: RoomInterface["owner"];
   guest?: RoomInterface["guest"];
 }
 
 export default function Scoreboard(props: ScoreboardProps) {
-  const {
-    playerOnePoints,
-    playerTwoPoints,
-    isVsPlayer,
-    isGameRunning,
-    owner,
-    guest,
-  } = props;
+  const { type, owner, guest } = props;
+
+  const { isGuest, playerOnePoints, playerTwoPoints } = useGame();
   const { user } = useAuth();
 
-  if (!isGameRunning) {
-    return <></>;
-  }
+  console.log(isGuest);
 
   return (
     <div className="flex absolute bottom-0 h-screen w-full justify-center items-end lg:items-center">
@@ -51,7 +46,13 @@ export default function Scoreboard(props: ScoreboardProps) {
         >
           <div className="flex absolute -top-8 w-16 h-16 justify-center">
             <img
-              src={owner?.photoURL ? owner.photoURL : playerOne}
+              src={
+                isGuest && owner?.photoURL
+                  ? owner.photoURL
+                  : user?.photoURL
+                  ? user.photoURL
+                  : playerOne
+              }
               referrerPolicy="no-referrer"
               alt="playerImg"
               className={clsx("", {
@@ -65,11 +66,13 @@ export default function Scoreboard(props: ScoreboardProps) {
               "font-space font-bold text-xl uppercase transition-colors text-center"
             }
           >
-            {isVsPlayer || owner?.name
-              ? owner?.name
-                ? owner.name
-                : "Player 1"
-              : "You"}
+            {type === "cpu"
+              ? "You"
+              : type !== "private" && isGuest && owner?.name
+              ? owner.name
+              : user?.displayName
+              ? user.displayName
+              : "Player 1"}
           </p>
           <h1 className={"font-space font-bold text-6xl transition-colors"}>
             {owner ? owner.points : playerOnePoints}
@@ -84,7 +87,7 @@ export default function Scoreboard(props: ScoreboardProps) {
               "bg-yellow text-black": owner || guest,
             }
           )}
-          animate={{ x: 0 }}
+          animate={{ x: type === "public" && !guest ? 1000 : 0 }}
           transition={{
             from: 1000,
             duration: 0.7,
@@ -94,7 +97,11 @@ export default function Scoreboard(props: ScoreboardProps) {
           <div className="flex absolute -top-8 w-16 h-16 justify-center">
             <img
               src={
-                guest?.photoURL ? guest.photoURL : isVsPlayer ? playerTwo : cpu
+                type === "cpu"
+                  ? cpu
+                  : guest?.photoURL
+                  ? guest.photoURL
+                  : playerTwo
               }
               className={clsx("", {
                 "rounded-full border-4 border-black": guest?.photoURL,
@@ -108,11 +115,7 @@ export default function Scoreboard(props: ScoreboardProps) {
               "font-space font-bold text-xl uppercase transition-colors text-center"
             }
           >
-            {isVsPlayer || guest?.name
-              ? guest?.name
-                ? guest.name
-                : "Player 2"
-              : "CPU"}
+            {type === "cpu" ? "CPU" : guest?.name ? guest.name : "Player 2"}
           </p>
           <h1 className={"font-space font-bold text-6xl transition-colors"}>
             {guest ? guest.points : playerTwoPoints}

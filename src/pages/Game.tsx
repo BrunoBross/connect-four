@@ -1,51 +1,59 @@
-import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Scoreboard from "../components/Scoreboard";
-import GameHeader from "../components/GameHeader";
-import Gameboard from "../components/Gameboard";
-import GameContainer from "../components/GameContainer";
-import Modal from "../components/Modal";
+import Scoreboard from "../components/game/Scoreboard";
+import GameHeader from "../components/game/GameHeader";
+import Gameboard from "../components/game/Gameboard";
+import GameContainer from "../components/game/GameContainer";
+import Modal from "../components/utils/Modal";
 import clsx from "clsx";
 import { RoomInterface, useRoom } from "../hooks/useRoom";
 import { onValue, ref } from "firebase/database";
-import { database } from "../config/firebase";
+import { database } from "../services/firebase";
 import { useAuth } from "../contexts/authContext";
-
-export const defaultGameMatrix = [
-  [0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0],
-];
+import { defaultGameMatrix, useGame } from "../contexts/gameContext";
+import { NavigateProps } from "../hooks/useGameNavigate";
 
 export default function Game() {
-  const { type, roomId } = useParams();
+  const { type, roomId } = useLocation().state as NavigateProps;
+  const navigate = useNavigate();
+
+  const {
+    gameMatrix,
+    setGameMatrix,
+    currentPlayer,
+    setCurrentPlayer,
+    winner,
+    isGameRunning,
+    setIsGameRunning,
+    playerOnePoints,
+    setPlayerOnePoints,
+    playerTwoPoints,
+    setPlayerTwoPoints,
+    isVsPlayer,
+    setIsVsPlayer,
+    isGuest,
+    setIsGuest,
+  } = useGame();
+
   const { updateRoom, assignGuest } = useRoom();
   const { user } = useAuth();
 
-  const [isGuest, setIsGuest] = useState(false);
-
   const [room, setRoom] = useState<RoomInterface>();
-  const [gameMatrix, setGameMatrix] = useState(
-    room?.gameMatrix || defaultGameMatrix
-  );
-  const [currentPlayer, setCurrentPlayer] = useState(room?.currentPlayer || 1);
-  const [winner, setWinner] = useState(0);
-  const [isGameRunning, setIsGameRunning] = useState(false);
-  const [playerOnePoints, setPlayerOnePoints] = useState(0);
-  const [playerTwoPoints, setPlayerTwoPoints] = useState(0);
-  const [isVsPlayer, setIsVsPlayer] = useState(false);
 
   const [isModalWinnerOpen, setIsModalWinnerOpen] = useState(false);
   const [isModalMenuOpen, setIsModalMenuOpen] = useState(false);
 
+  // set guest to room
   useEffect(() => {
-    if (roomId && room && user && room?.owner.id !== user.uid && !room.guest) {
-      const userToAssign = {
+    if (
+      type === "public" &&
+      roomId &&
+      room &&
+      user &&
+      room?.owner.id !== user.uid
+    ) {
+      const guestToAssign = {
         id: user.uid,
         name: user.displayName,
         photoURL: user.photoURL,
@@ -54,9 +62,9 @@ export default function Game() {
         boardId: 2,
       };
       setIsGuest(true);
-      assignGuest(roomId, userToAssign);
+      assignGuest(roomId, guestToAssign);
     }
-  }, [assignGuest, room, roomId, user]);
+  }, [assignGuest, room, roomId, user, type, setIsGuest]);
 
   useEffect(() => {
     if (roomId) {
@@ -67,133 +75,32 @@ export default function Game() {
   }, [gameMatrix, roomId, updateRoom, playerOnePoints, playerTwoPoints]);
 
   useEffect(() => {
-    onValue(ref(database, `/room/${roomId}`), (snapshot) => {
-      const data = snapshot.val();
-      setRoom(data);
-      console.log(data);
-      setGameMatrix(data.gameMatrix);
-      setCurrentPlayer(data.currentPlayer);
-      setIsGameRunning(data.isGameRunning);
-    });
-  }, [roomId]);
+    if (type === "public") {
+      onValue(ref(database, `/room/${roomId}`), (snapshot) => {
+        const data: RoomInterface = snapshot.val();
 
-  useEffect(() => {
-    type === "player" && setIsVsPlayer(true);
-  }, [type]);
+        setRoom(data);
+        setGameMatrix(data.gameMatrix);
+        setCurrentPlayer(data.currentPlayer);
+        setIsGameRunning(data.inProgress);
 
-  const notifyWinner = useCallback(() => {
-    const playerWinner = currentPlayer === 1 ? 2 : 1;
-    setWinner(playerWinner);
-    playerWinner === 1
-      ? setPlayerOnePoints((prevState) => prevState + 1)
-      : setPlayerTwoPoints((prevState) => prevState + 1);
-    setGameMatrix(defaultGameMatrix);
-    setIsModalWinnerOpen(true);
-  }, [currentPlayer]);
-
-  const verifyColumns = useCallback(() => {
-    for (let colIdx = 0; colIdx < gameMatrix[0].length; colIdx++) {
-      let prev = 0;
-      let count = 1;
-      for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
-        const item = gameMatrix[rowIdx][colIdx];
-        if (item !== 0 && item === prev) {
-          count++;
-          if (count >= 4) {
-            return notifyWinner();
-          }
-        } else {
-          count = 1;
+        if (!data.isOpen) {
+          navigate("/");
         }
-        prev = item;
-      }
+      });
     }
-  }, [gameMatrix, notifyWinner]);
-
-  const verifyRows = useCallback(() => {
-    for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
-      let prev = 0;
-      let count = 1;
-      for (let colIdx = 0; colIdx < gameMatrix[rowIdx].length; colIdx++) {
-        const item = gameMatrix[rowIdx][colIdx];
-        if (item !== 0 && item === prev) {
-          count++;
-          if (count >= 4) {
-            return notifyWinner();
-          }
-        } else {
-          count = 1;
-        }
-        prev = item;
-      }
-    }
-  }, [gameMatrix, notifyWinner]);
-
-  const verifyMainDiagonals = useCallback(() => {
-    for (let startCol = 0; startCol <= gameMatrix[0].length - 4; startCol++) {
-      for (let startRow = gameMatrix.length - 1; startRow >= 3; startRow--) {
-        const item = gameMatrix[startRow][startCol];
-        if (item !== 0) {
-          let count = 1;
-          let colIdx = startCol + 1;
-          let rowIdx = startRow - 1;
-          while (
-            colIdx < gameMatrix[0].length &&
-            rowIdx >= 0 &&
-            gameMatrix[rowIdx][colIdx] === item
-          ) {
-            count++;
-            if (count >= 4) {
-              return notifyWinner();
-            }
-            colIdx++;
-            rowIdx--;
-          }
-        }
-      }
-    }
-  }, [gameMatrix, notifyWinner]);
-
-  const verifySecondaryDiagonals = useCallback(() => {
-    for (let startCol = gameMatrix[0].length - 1; startCol >= 3; startCol--) {
-      for (let startRow = gameMatrix.length - 1; startRow >= 3; startRow--) {
-        const item = gameMatrix[startRow][startCol];
-        if (item !== 0) {
-          let count = 1;
-          let colIdx = startCol - 1;
-          let rowIdx = startRow - 1;
-          while (
-            colIdx >= 0 &&
-            rowIdx >= 0 &&
-            gameMatrix[rowIdx][colIdx] === item
-          ) {
-            count++;
-            if (count >= 4) {
-              return notifyWinner();
-            }
-            colIdx--;
-            rowIdx--;
-          }
-        }
-      }
-    }
-  }, [gameMatrix, notifyWinner]);
-
-  const verifyWinner = useCallback(() => {
-    verifyColumns();
-    verifyRows();
-    verifyMainDiagonals();
-    verifySecondaryDiagonals();
   }, [
-    verifyColumns,
-    verifyRows,
-    verifyMainDiagonals,
-    verifySecondaryDiagonals,
+    roomId,
+    type,
+    setCurrentPlayer,
+    setGameMatrix,
+    setIsGameRunning,
+    navigate,
   ]);
 
   useEffect(() => {
-    verifyWinner();
-  }, [gameMatrix, verifyWinner]);
+    type !== "cpu" && setIsVsPlayer(true);
+  }, [type, setIsVsPlayer]);
 
   const canPlayCondition =
     (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
@@ -203,16 +110,18 @@ export default function Game() {
       return;
     }
 
-    if (canPlayCondition) {
+    if (type !== "public" || canPlayCondition) {
       const newGameMatrix = gameMatrix.map((row) => [...row]);
       for (let index = newGameMatrix.length - 1; index >= 0; index--) {
         if (newGameMatrix[columnIdx][index] === 0) {
           newGameMatrix[columnIdx][index] = currentPlayer;
           switchPlayer();
-          if (roomId) {
+          if (type === "public" && roomId) {
             updateRoom(roomId, {
               gameMatrix: newGameMatrix,
             });
+          } else {
+            setGameMatrix(newGameMatrix);
           }
           return;
         }
@@ -227,7 +136,7 @@ export default function Game() {
 
   const switchPlayer = () => {
     const newCurrentPlayer = currentPlayer === 1 ? 2 : 1;
-    if (roomId) {
+    if (type === "public" && roomId) {
       updateRoom(roomId, {
         currentPlayer: newCurrentPlayer,
       });
@@ -237,7 +146,8 @@ export default function Game() {
 
   const handleStartGame = () => {
     setIsGameRunning(true);
-    if (roomId) {
+    if (type === "public" && roomId && room?.guest && !isGuest) {
+      console.log("oi");
       updateRoom(roomId, {
         isGameRunning: true,
       });
@@ -252,12 +162,30 @@ export default function Game() {
     setPlayerTwoPoints(0);
   };
 
+  const handleGoHome = () => {
+    if (type === "public") {
+      if (!isGuest) {
+        updateRoom(roomId!!, {
+          isOpen: false,
+        });
+      } else {
+        updateRoom(roomId!!, {
+          guest: null,
+        });
+      }
+    } else {
+      resetGame();
+    }
+
+    navigate("/");
+  };
+
   return (
     <GameContainer>
       <Modal
         isModalOpen={isModalWinnerOpen}
         setIsModalOpen={setIsModalWinnerOpen}
-        backgroundColor={winner === 1 ? "bg-pink" : "bg-yellow"}
+        bgcolor={winner === 1 ? "bg-pink" : "bg-yellow"}
       >
         <div>
           <h1
@@ -298,6 +226,7 @@ export default function Game() {
 
       <GameHeader
         resetGame={resetGame}
+        handleGoHome={handleGoHome}
         isModalMenuOpen={isModalMenuOpen}
         setIsModalMenuOpen={setIsModalMenuOpen}
         roomId={roomId}
@@ -306,8 +235,8 @@ export default function Game() {
       <Scoreboard
         playerOnePoints={playerOnePoints}
         playerTwoPoints={playerTwoPoints}
-        isVsPlayer={isVsPlayer}
         isGameRunning={isGameRunning}
+        type={type}
         owner={room?.owner}
         guest={room?.guest}
       />
@@ -322,6 +251,7 @@ export default function Game() {
         randomPlay={randomPlay}
         switchPlayer={switchPlayer}
         isModalOpen={isModalWinnerOpen || isModalMenuOpen}
+        type={type}
         owner={room?.owner}
         guest={room?.guest}
       />

@@ -1,27 +1,76 @@
 import { motion } from "framer-motion";
-
-import logo from "../img/logo.svg";
-import { Dispatch, SetStateAction } from "react";
-import { Link } from "react-router-dom";
-import Modal from "./Modal";
+import { LuCopy, LuCopyCheck } from "react-icons/lu";
+import logo from "../../img/logo.svg";
+import { Dispatch, SetStateAction, useState } from "react";
+import Modal from "../utils/Modal";
+import { copyTextToClipboard } from "../utils/utils";
 
 interface GameHeaderProps {
   resetGame: () => void;
+  handleGoHome: () => void;
   isModalMenuOpen: boolean;
   setIsModalMenuOpen: Dispatch<SetStateAction<boolean>>;
   roomId: string | undefined;
 }
 
 export default function GameHeader(props: GameHeaderProps) {
-  const { resetGame, isModalMenuOpen, setIsModalMenuOpen, roomId } = props;
+  const {
+    resetGame,
+    handleGoHome,
+    isModalMenuOpen,
+    setIsModalMenuOpen,
+    roomId,
+  } = props;
+
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleResetGame = () => {
     resetGame();
     setIsModalMenuOpen(false);
   };
 
+  const handleCopyClick = (copyText: string) => {
+    copyTextToClipboard(copyText)
+      .then(() => {
+        setIsCopied(true);
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 3000);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <>
+      {roomId && (
+        <motion.div
+          className="absolute left-5 top-5 z-[1000]"
+          animate={{ x: 0 }}
+          transition={{
+            from: -500,
+            delay: 0.3,
+            duration: 1,
+            type: "spring",
+          }}
+          onClick={() => handleCopyClick(roomId)}
+          title="Copy to clipboard"
+        >
+          <button className="flex h-24 items-center justify-between gap-2 bg-white p-3 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2">
+            <div className="flex flex-2 flex-col">
+              <p className="uppercase text-black font-space text-2xl font-bold">
+                Room Code
+              </p>
+              <p className="uppercase text-black font-space text-4xl font-bold">
+                {roomId}
+              </p>
+            </div>
+            {isCopied ? <LuCopyCheck size={40} /> : <LuCopy size={40} />}
+          </button>
+        </motion.div>
+      )}
+
       <motion.div
         className="flex flex-col xs:flex-row w-[90%] md:w-[40rem] justify-between items-center gap-3 xs:gap-0 z-[100]"
         animate={{ y: 0 }}
@@ -54,16 +103,6 @@ export default function GameHeader(props: GameHeaderProps) {
         >
           Restart
         </button>
-        <button className="absolute left-5 top-5 flex h-24 bg-white p-3 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2">
-          <div className="flex flex-col">
-            <p className="uppercase text-black font-space text-2xl font-bold">
-              Room Code
-            </p>
-            <p className="uppercase text-black font-space text-4xl font-bold">
-              {roomId}
-            </p>
-          </div>
-        </button>
       </motion.div>
       <Modal isModalOpen={isModalMenuOpen} setIsModalOpen={setIsModalMenuOpen}>
         <h1
@@ -89,14 +128,14 @@ export default function GameHeader(props: GameHeaderProps) {
               Restart
             </p>
           </button>
-          <Link
+          <button
             className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-            to="/"
+            onClick={handleGoHome}
           >
             <p className="uppercase text-black font-space text-2xl font-bold">
               Quit Game
             </p>
-          </Link>
+          </button>
         </div>
       </Modal>
     </>

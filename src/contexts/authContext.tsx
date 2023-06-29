@@ -14,7 +14,7 @@ import {
   signOut,
   getAuth,
 } from "firebase/auth";
-import { auth, database } from "../config/firebase";
+import { auth, database } from "../services/firebase";
 import { ref, set } from "firebase/database";
 
 interface AuthProviderProps {
