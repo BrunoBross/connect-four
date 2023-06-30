@@ -1,13 +1,7 @@
 import { useCallback } from "react";
 
-interface UseGameUtilsProps {
-  gameMatrix: number[][];
-}
-
-export function useGameUtils(props: UseGameUtilsProps) {
-  const { gameMatrix } = props;
-
-  const verifyColumns = useCallback(() => {
+export function useGameUtils() {
+  const verifyColumns = useCallback((gameMatrix: number[][]) => {
     for (let colIdx = 0; colIdx < gameMatrix[0].length; colIdx++) {
       let prev = 0;
       let count = 1;
@@ -25,9 +19,9 @@ export function useGameUtils(props: UseGameUtilsProps) {
       }
     }
     return false;
-  }, [gameMatrix]);
+  }, []);
 
-  const verifyRows = useCallback(() => {
+  const verifyRows = useCallback((gameMatrix: number[][]) => {
     for (let rowIdx = gameMatrix.length - 1; rowIdx >= 0; rowIdx--) {
       let prev = 0;
       let count = 1;
@@ -45,9 +39,9 @@ export function useGameUtils(props: UseGameUtilsProps) {
       }
     }
     return false;
-  }, [gameMatrix]);
+  }, []);
 
-  const verifyMainDiagonals = useCallback(() => {
+  const verifyMainDiagonals = useCallback((gameMatrix: number[][]) => {
     for (let startCol = 0; startCol <= gameMatrix[0].length - 4; startCol++) {
       for (let startRow = gameMatrix.length - 1; startRow >= 3; startRow--) {
         const item = gameMatrix[startRow][startCol];
@@ -71,9 +65,9 @@ export function useGameUtils(props: UseGameUtilsProps) {
       }
     }
     return false;
-  }, [gameMatrix]);
+  }, []);
 
-  const verifySecondaryDiagonals = useCallback(() => {
+  const verifySecondaryDiagonals = useCallback((gameMatrix: number[][]) => {
     for (let startCol = gameMatrix[0].length - 1; startCol >= 3; startCol--) {
       for (let startRow = gameMatrix.length - 1; startRow >= 3; startRow--) {
         const item = gameMatrix[startRow][startCol];
@@ -97,24 +91,22 @@ export function useGameUtils(props: UseGameUtilsProps) {
       }
     }
     return false;
-  }, [gameMatrix]);
+  }, []);
 
-  const verifyBoard = useCallback(() => {
-    if (
-      verifyColumns() ||
-      verifyRows() ||
-      verifyMainDiagonals() ||
-      verifySecondaryDiagonals()
-    ) {
-      return true;
-    }
-    return false;
-  }, [
-    verifyColumns,
-    verifyRows,
-    verifyMainDiagonals,
-    verifySecondaryDiagonals,
-  ]);
+  const verifyBoard = useCallback(
+    async (gameMatrix: number[][]) => {
+      if (
+        verifyColumns(gameMatrix) ||
+        verifyRows(gameMatrix) ||
+        verifyMainDiagonals(gameMatrix) ||
+        verifySecondaryDiagonals(gameMatrix)
+      ) {
+        return true;
+      }
+      return false;
+    },
+    [verifyColumns, verifyRows, verifyMainDiagonals, verifySecondaryDiagonals]
+  );
 
   return { verifyBoard };
 }

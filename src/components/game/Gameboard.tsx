@@ -14,15 +14,12 @@ import clsx from "clsx";
 import GameboardPieces from "./GameboardPieces";
 import { RoomInterface } from "../../hooks/useRoom";
 import { NavigateProps, TypeEnum } from "../../hooks/useGameNavigate";
-import { useGame } from "../../contexts/gameContext";
 
 interface GameboardProps {
   gameMatrix: number[][];
   isGameRunning: boolean;
   makePlay: (columnIdx: number) => void;
   currentPlayer: number;
-  switchPlayer: () => void;
-  randomPlay: () => void;
   handleStartGame: () => void;
   type: NavigateProps["type"];
   canPlayCondition: boolean;
@@ -37,19 +34,13 @@ export default function Gameboard(props: GameboardProps) {
     makePlay,
     currentPlayer,
     handleStartGame,
-    randomPlay,
-    switchPlayer,
     type,
     canPlayCondition,
     owner,
     guest,
   } = props;
 
-  const { isModalMenuOpen, isModalWinnerOpen } = useGame();
-
   const [columnHoveringIdx, setColumnHoveringIdx] = useState(0);
-
-  const isAnyModalOpen = isModalMenuOpen || isModalWinnerOpen;
 
   const cursorPointerCondition =
     isGameRunning && (type !== TypeEnum.public || canPlayCondition);
@@ -104,15 +95,7 @@ export default function Gameboard(props: GameboardProps) {
 
         <div className="absolute -bottom-[9rem] sm:-bottom-[7rem] z-30">
           {isGameRunning ? (
-            <TurnBackground
-              currentPlayer={currentPlayer}
-              isGameRunning={isGameRunning}
-              switchPlayer={switchPlayer}
-              randomPlay={randomPlay}
-              isModalOpen={isAnyModalOpen}
-              owner={owner}
-              guest={guest}
-            />
+            <TurnBackground />
           ) : (
             <ReadyBackground
               currentPlayer={currentPlayer}

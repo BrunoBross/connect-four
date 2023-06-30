@@ -11,6 +11,8 @@ import {
 import { useGameUtils } from "../hooks/useGameUtils";
 import { RoomInterface, useRoom } from "../hooks/useRoom";
 import { NavigateProps, TypeEnum } from "../hooks/useGameNavigate";
+import { onValue, ref } from "firebase/database";
+import { database } from "../services/firebase";
 
 interface GameProviderProps {
   children: ReactNode;
@@ -45,7 +47,11 @@ export interface GameContextInterface extends GameModalsInterface {
   setPlayerTwoPoints: Dispatch<SetStateAction<number>>;
   isGuest: boolean;
   setIsGuest: Dispatch<SetStateAction<boolean>>;
-
+  closeOrExitRoom: () => void;
+  handleStartGame: () => void;
+  timer: number;
+  setTimer: Dispatch<SetStateAction<number>>;
+  canPlayCondition: boolean;
   makePlay: (columnIdx: number) => void;
   randomPlay: () => void;
 
@@ -86,8 +92,20 @@ export default function GameProvider(props: GameProviderProps) {
 
   const [timer, setTimer] = useState(defaultTime);
 
-  const { verifyBoard } = useGameUtils({ gameMatrix });
+  const { verifyBoard } = useGameUtils();
   const { updateRoom } = useRoom();
+
+  const canPlayCondition =
+    (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
+
+  const handleStartGame = () => {
+    if (type === TypeEnum.public && roomId && room?.guest && !isGuest) {
+      updateRoom(roomId, {
+        isGameRunning: true,
+      });
+    }
+    setIsGameRunning(true);
+  };
 
   const resetGame = useCallback(() => {
     setRoom(undefined);
@@ -107,10 +125,9 @@ export default function GameProvider(props: GameProviderProps) {
     setPlayerTwoPoints,
   ]);
 
-  const notifyWinner = useCallback(() => {
-    const playerWinner = currentPlayer === 1 ? 2 : 1;
-    setWinner(playerWinner);
-    playerWinner === 1
+  const notifyWinner = useCallback(async () => {
+    setWinner(currentPlayer);
+    currentPlayer === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
     setGameMatrix(defaultGameMatrix);
@@ -124,9 +141,6 @@ export default function GameProvider(props: GameProviderProps) {
     setWinner,
   ]);
 
-  const canPlayCondition =
-    (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
-
   const switchPlayer = useCallback(() => {
     const newCurrentPlayer = currentPlayer === 1 ? 2 : 1;
     if (type === TypeEnum.public && roomId) {
@@ -138,24 +152,25 @@ export default function GameProvider(props: GameProviderProps) {
   }, [currentPlayer, roomId, type, updateRoom]);
 
   const makePlay = useCallback(
-    (columnIdx: number) => {
+    async (columnIdx: number) => {
       if (!isGameRunning) {
         return;
       }
-
       if (type !== TypeEnum.public || canPlayCondition) {
         const newGameMatrix = gameMatrix.map((row) => [...row]);
         for (let index = newGameMatrix.length - 1; index >= 0; index--) {
           if (newGameMatrix[columnIdx][index] === 0) {
             newGameMatrix[columnIdx][index] = currentPlayer;
-            switchPlayer();
             setGameMatrix(newGameMatrix);
+            await verifyBoard(newGameMatrix).then(async (hasWin) => {
+              hasWin && (await notifyWinner());
+            });
             if (type === TypeEnum.public && roomId) {
               updateRoom(roomId, {
                 gameMatrix: newGameMatrix,
               });
             }
-            return;
+            return switchPlayer();
           }
         }
       }
@@ -169,6 +184,8 @@ export default function GameProvider(props: GameProviderProps) {
       switchPlayer,
       type,
       updateRoom,
+      notifyWinner,
+      verifyBoard,
     ]
   );
 
@@ -176,6 +193,53 @@ export default function GameProvider(props: GameProviderProps) {
     const columnIdx = Math.floor(Math.random() * 6);
     makePlay(columnIdx);
   }, [makePlay]);
+
+  const closeOrExitRoom = () => {
+    if (type === TypeEnum.public) {
+      if (!isGuest) {
+        // Fecha a sala
+        updateRoom(roomId!!, {
+          isOpen: false,
+        });
+      } else {
+        // Libera convidado e reinicia sala
+        updateRoom(roomId!!, {
+          guest: null,
+          gameMatrix: defaultGameMatrix,
+          isGameRunning: false,
+          currentPlayer: 1,
+          remainingTime: defaultTime,
+        });
+      }
+    }
+
+    resetGame();
+  };
+
+  // Se for convidado, busca o tempo que falta
+  useEffect(() => {
+    if (type === TypeEnum.public && isGuest) {
+      onValue(ref(database, `/room/${roomId}`), (snapshot) => {
+        const data: RoomInterface = snapshot.val();
+
+        setTimer(data.remainingTime);
+      });
+    }
+  }, [isGuest, roomId, type]);
+
+  // Se for o dono, atualiza no banco de dados o tempo que falta
+  useEffect(() => {
+    if (!isGuest && roomId) {
+      updateRoom(roomId, {
+        remainingTime: timer,
+      });
+    }
+  }, [timer, isGuest, roomId, updateRoom]);
+
+  // Zera o tempo quando muda o jogador (alguem venceu)
+  useEffect(() => {
+    setTimer(defaultTime);
+  }, [currentPlayer]);
 
   useEffect(() => {
     if (!isGuest && isGameRunning) {
@@ -202,13 +266,6 @@ export default function GameProvider(props: GameProviderProps) {
     isModalWinnerOpen,
     isGuest,
   ]);
-
-  useEffect(() => {
-    if (verifyBoard()) {
-      notifyWinner();
-    }
-  }, [gameMatrix, verifyBoard, notifyWinner]);
-
   return (
     <GameContext.Provider
       value={{
@@ -236,9 +293,14 @@ export default function GameProvider(props: GameProviderProps) {
         setIsModalMenuOpen,
         isModalWinnerOpen,
         setIsModalWinnerOpen,
+        closeOrExitRoom,
+        handleStartGame,
+        timer,
+        setTimer,
         makePlay,
         randomPlay,
         resetGame,
+        canPlayCondition,
       }}
     >
       {children}

@@ -26,6 +26,14 @@ const generateRoomKey = (): string => {
   return String(Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000);
 };
 
+export const defaultRoomValues = {
+  gameMatrix: defaultGameMatrix,
+  isGameRunning: false,
+  currentPlayer: 1,
+  isOpen: true,
+  remainingTime: defaultTime,
+};
+
 export function useRoom() {
   const { user } = useAuth();
 
@@ -100,11 +108,7 @@ export function useRoom() {
         points: 0,
         boardId: 1,
       },
-      gameMatrix: defaultGameMatrix,
-      isGameRunning: false,
-      currentPlayer: 1,
-      isOpen: true,
-      remainingTime: defaultTime,
+      ...defaultRoomValues,
     };
 
     const roomId = generateRoomKey();
