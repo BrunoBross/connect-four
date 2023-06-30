@@ -1,8 +1,8 @@
 import { set, get, ref, update } from "firebase/database";
 import { database, databaseRef } from "../services/firebase";
 import { useAuth } from "../contexts/authContext";
-import { defaultGameMatrix } from "../contexts/gameContext";
-import { useGameNavigate } from "./useGameNavigate";
+import { defaultGameMatrix, defaultTime } from "../contexts/gameContext";
+import { OperationCanceledException } from "typescript";
 
 export interface PlayerInterface {
   id: string;
@@ -17,9 +17,10 @@ export interface RoomInterface {
   owner: PlayerInterface;
   gameMatrix: number[][];
   guest?: PlayerInterface;
-  inProgress: boolean;
+  isGameRunning: boolean;
   currentPlayer: number;
   isOpen: boolean;
+  remainingTime: number;
 }
 
 const generateRoomKey = (): string => {
@@ -27,7 +28,6 @@ const generateRoomKey = (): string => {
 };
 
 export function useRoom() {
-  const { handleNavigateGame } = useGameNavigate();
   const { user } = useAuth();
 
   const assignGuest = (roomId: string, guest: RoomInterface["guest"]) => {
@@ -61,8 +61,10 @@ export function useRoom() {
       });
   };
 
-  const joinRoom = (roomId: string) => {
-    get(databaseRef)
+  const verifyRoomExists = async (roomId: string) => {
+    let exists = false;
+
+    await get(databaseRef)
       .then((snapshot) => {
         if (snapshot.exists()) {
           const rooms = Object.entries(snapshot.val());
@@ -70,10 +72,7 @@ export function useRoom() {
             const roomId_ = room_[0];
             const room = room_[1] as RoomInterface;
             if (roomId_ === String(roomId) && room.isOpen && !room.guest) {
-              return handleNavigateGame({
-                type: "public",
-                roomId: roomId,
-              });
+              exists = true;
             }
           });
         } else {
@@ -83,11 +82,14 @@ export function useRoom() {
       .catch((error) => {
         console.log(error);
       });
+
+    return exists;
   };
 
-  const createRoom = () => {
+  const createRoom = async () => {
     if (!user) {
-      return alert("User not authenticated");
+      alert("User not authenticated");
+      return null;
     }
 
     const data: RoomInterface = {
@@ -100,24 +102,21 @@ export function useRoom() {
         boardId: 1,
       },
       gameMatrix: defaultGameMatrix,
-      inProgress: false,
+      isGameRunning: false,
       currentPlayer: 1,
       isOpen: true,
+      remainingTime: defaultTime,
     };
 
     const roomId = generateRoomKey();
 
-    set(ref(database, `/room/${roomId}`), data)
-      .then(() => {
-        handleNavigateGame({
-          type: "public",
-          roomId: roomId,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    await set(ref(database, `/room/${roomId}`), data).catch((error) => {
+      console.log(error);
+      throw new OperationCanceledException();
+    });
+
+    return roomId;
   };
 
-  return { createRoom, joinRoom, getRoomById, updateRoom, assignGuest };
+  return { createRoom, verifyRoomExists, getRoomById, updateRoom, assignGuest };
 }

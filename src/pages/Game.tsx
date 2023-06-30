@@ -1,53 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Scoreboard from "../components/game/Scoreboard";
 import GameHeader from "../components/game/GameHeader";
 import Gameboard from "../components/game/Gameboard";
 import GameContainer from "../components/game/GameContainer";
-import Modal from "../components/utils/Modal";
-import clsx from "clsx";
 import { RoomInterface, useRoom } from "../hooks/useRoom";
 import { onValue, ref } from "firebase/database";
 import { database } from "../services/firebase";
 import { useAuth } from "../contexts/authContext";
-import { defaultGameMatrix, useGame } from "../contexts/gameContext";
-import { NavigateProps } from "../hooks/useGameNavigate";
+import {
+  defaultGameMatrix,
+  defaultTime,
+  useGame,
+} from "../contexts/gameContext";
+import { NavigateProps, TypeEnum } from "../hooks/useGameNavigate";
+import WinnerModal from "../components/game/modal/WinnerModal";
 
 export default function Game() {
   const { type, roomId } = useLocation().state as NavigateProps;
   const navigate = useNavigate();
 
   const {
+    room,
+    setRoom,
+    setRoomId,
+    setType,
     gameMatrix,
     setGameMatrix,
     currentPlayer,
     setCurrentPlayer,
-    winner,
     isGameRunning,
     setIsGameRunning,
     playerOnePoints,
-    setPlayerOnePoints,
     playerTwoPoints,
-    setPlayerTwoPoints,
-    isVsPlayer,
-    setIsVsPlayer,
     isGuest,
     setIsGuest,
+    makePlay,
+    randomPlay,
+    resetGame,
   } = useGame();
 
   const { updateRoom, assignGuest } = useRoom();
   const { user } = useAuth();
 
-  const [room, setRoom] = useState<RoomInterface>();
-
-  const [isModalWinnerOpen, setIsModalWinnerOpen] = useState(false);
-  const [isModalMenuOpen, setIsModalMenuOpen] = useState(false);
+  // initial configs
+  useEffect(() => {
+    setRoomId(roomId);
+    setType(type);
+  }, [roomId, setRoomId, setType, type]);
 
   // set guest to room
   useEffect(() => {
     if (
-      type === "public" &&
+      type === TypeEnum.public &&
       roomId &&
       room &&
       user &&
@@ -74,18 +80,26 @@ export default function Game() {
     }
   }, [gameMatrix, roomId, updateRoom, playerOnePoints, playerTwoPoints]);
 
+  const canPlayCondition =
+    (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
+
   useEffect(() => {
-    if (type === "public") {
+    if (type === TypeEnum.public) {
       onValue(ref(database, `/room/${roomId}`), (snapshot) => {
         const data: RoomInterface = snapshot.val();
 
-        setRoom(data);
-        setGameMatrix(data.gameMatrix);
-        setCurrentPlayer(data.currentPlayer);
-        setIsGameRunning(data.inProgress);
+        // Atualiza caso nao seja o jogador da vez
+        if (canPlayCondition) {
+          setGameMatrix(data.gameMatrix);
+        }
 
-        if (!data.isOpen) {
-          navigate("/");
+        setRoom(data);
+        setCurrentPlayer(data.currentPlayer);
+        setIsGameRunning(data.isGameRunning);
+
+        if (!data || !data.isOpen) {
+          resetGame();
+          return navigate("/");
         }
       });
     }
@@ -96,47 +110,41 @@ export default function Game() {
     setGameMatrix,
     setIsGameRunning,
     navigate,
+    setRoom,
+    resetGame,
+    canPlayCondition,
   ]);
 
-  useEffect(() => {
-    type !== "cpu" && setIsVsPlayer(true);
-  }, [type, setIsVsPlayer]);
+  // const makePlay = (columnIdx: number) => {
+  //   if (!isGameRunning) {
+  //     return;
+  //   }
 
-  const canPlayCondition =
-    (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
+  //   if (type !== TypeEnum.public || canPlayCondition) {
+  //     const newGameMatrix = gameMatrix.map((row) => [...row]);
+  //     for (let index = newGameMatrix.length - 1; index >= 0; index--) {
+  //       if (newGameMatrix[columnIdx][index] === 0) {
+  //         newGameMatrix[columnIdx][index] = currentPlayer;
+  //         switchPlayer();
+  //         if (type === TypeEnum.public && roomId) {
+  //           updateRoom(roomId, {
+  //             gameMatrix: newGameMatrix,
+  //           });
+  //         }
+  //         return setGameMatrix(newGameMatrix);
+  //       }
+  //     }
+  //   }
+  // };
 
-  const makePlay = (columnIdx: number) => {
-    if (!isGameRunning) {
-      return;
-    }
-
-    if (type !== "public" || canPlayCondition) {
-      const newGameMatrix = gameMatrix.map((row) => [...row]);
-      for (let index = newGameMatrix.length - 1; index >= 0; index--) {
-        if (newGameMatrix[columnIdx][index] === 0) {
-          newGameMatrix[columnIdx][index] = currentPlayer;
-          switchPlayer();
-          if (type === "public" && roomId) {
-            updateRoom(roomId, {
-              gameMatrix: newGameMatrix,
-            });
-          } else {
-            setGameMatrix(newGameMatrix);
-          }
-          return;
-        }
-      }
-    }
-  };
-
-  const randomPlay = () => {
-    const columnIdx = Math.floor(Math.random() * 6);
-    makePlay(columnIdx);
-  };
+  // const randomPlay = () => {
+  //   const columnIdx = Math.floor(Math.random() * 6);
+  //   makePlay(columnIdx);
+  // };
 
   const switchPlayer = () => {
     const newCurrentPlayer = currentPlayer === 1 ? 2 : 1;
-    if (type === "public" && roomId) {
+    if (type === TypeEnum.public && roomId) {
       updateRoom(roomId, {
         currentPlayer: newCurrentPlayer,
       });
@@ -145,90 +153,44 @@ export default function Game() {
   };
 
   const handleStartGame = () => {
-    setIsGameRunning(true);
-    if (type === "public" && roomId && room?.guest && !isGuest) {
-      console.log("oi");
+    if (type === TypeEnum.public && roomId && room?.guest && !isGuest) {
       updateRoom(roomId, {
         isGameRunning: true,
       });
     }
-  };
-
-  const resetGame = () => {
-    setGameMatrix(defaultGameMatrix);
-    setCurrentPlayer(1);
-    setIsGameRunning(false);
-    setPlayerOnePoints(0);
-    setPlayerTwoPoints(0);
+    setIsGameRunning(true);
   };
 
   const handleGoHome = () => {
-    if (type === "public") {
+    if (type === TypeEnum.public) {
       if (!isGuest) {
+        // Fecha a sala
         updateRoom(roomId!!, {
           isOpen: false,
         });
       } else {
+        // Libera convidado e reinicia sala
         updateRoom(roomId!!, {
           guest: null,
+          gameMatrix: defaultGameMatrix,
+          isGameRunning: false,
+          currentPlayer: 1,
+          remainingTime: defaultTime,
         });
       }
-    } else {
-      resetGame();
     }
 
+    resetGame();
     navigate("/");
   };
 
   return (
     <GameContainer>
-      <Modal
-        isModalOpen={isModalWinnerOpen}
-        setIsModalOpen={setIsModalWinnerOpen}
-        bgcolor={winner === 1 ? "bg-pink" : "bg-yellow"}
-      >
-        <div>
-          <h1
-            className={clsx(
-              "font-space text-[4rem] uppercase font-bold text-center",
-              {
-                "text-white": winner === 1,
-                "text-black": winner === 2,
-              }
-            )}
-          >
-            {isVsPlayer || winner === 1 ? `Player ${winner}` : "CPU"}
-          </h1>
-          <h1
-            className={clsx(
-              "font-space text-[4rem] uppercase font-bold text-center",
-              {
-                "text-white": winner === 1,
-                "text-black": winner === 2,
-              }
-            )}
-          >
-            Win
-          </h1>
-        </div>
-
-        <div className="flex flex-col w-full items-center gap-5">
-          <button
-            className="flex w-[85%] h-24 items-center justify-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-            onClick={() => setIsModalWinnerOpen(false)}
-          >
-            <p className="uppercase text-black font-space text-2xl font-bold">
-              Continue Game
-            </p>
-          </button>
-        </div>
-      </Modal>
+      <WinnerModal />
 
       <GameHeader
         resetGame={resetGame}
         handleGoHome={handleGoHome}
-        isModalMenuOpen={isModalMenuOpen}
-        setIsModalMenuOpen={setIsModalMenuOpen}
         roomId={roomId}
       />
 
@@ -250,7 +212,6 @@ export default function Game() {
         handleStartGame={handleStartGame}
         randomPlay={randomPlay}
         switchPlayer={switchPlayer}
-        isModalOpen={isModalWinnerOpen || isModalMenuOpen}
         type={type}
         owner={room?.owner}
         guest={room?.guest}

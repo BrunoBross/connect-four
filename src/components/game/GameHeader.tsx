@@ -1,26 +1,21 @@
 import { motion } from "framer-motion";
 import { LuCopy, LuCopyCheck } from "react-icons/lu";
 import logo from "../../img/logo.svg";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import Modal from "../utils/Modal";
 import { copyTextToClipboard } from "../utils/utils";
+import { useGame } from "../../contexts/gameContext";
 
 interface GameHeaderProps {
   resetGame: () => void;
   handleGoHome: () => void;
-  isModalMenuOpen: boolean;
-  setIsModalMenuOpen: Dispatch<SetStateAction<boolean>>;
   roomId: string | undefined;
 }
 
 export default function GameHeader(props: GameHeaderProps) {
-  const {
-    resetGame,
-    handleGoHome,
-    isModalMenuOpen,
-    setIsModalMenuOpen,
-    roomId,
-  } = props;
+  const { resetGame, handleGoHome, roomId } = props;
+
+  const { isModalMenuOpen, setIsModalMenuOpen } = useGame();
 
   const [isCopied, setIsCopied] = useState(false);
 
@@ -40,6 +35,11 @@ export default function GameHeader(props: GameHeaderProps) {
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleQuitGame = () => {
+    handleGoHome();
+    setIsModalMenuOpen(false);
   };
 
   return (
@@ -130,7 +130,7 @@ export default function GameHeader(props: GameHeaderProps) {
           </button>
           <button
             className="flex w-[85%] h-24 items-center justify-between bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-            onClick={handleGoHome}
+            onClick={handleQuitGame}
           >
             <p className="uppercase text-black font-space text-2xl font-bold">
               Quit Game

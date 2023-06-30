@@ -13,7 +13,8 @@ import boardShadow from "../../img/board-layer-black-large.svg";
 import clsx from "clsx";
 import GameboardPieces from "./GameboardPieces";
 import { RoomInterface } from "../../hooks/useRoom";
-import { NavigateProps } from "../../hooks/useGameNavigate";
+import { NavigateProps, TypeEnum } from "../../hooks/useGameNavigate";
+import { useGame } from "../../contexts/gameContext";
 
 interface GameboardProps {
   gameMatrix: number[][];
@@ -23,7 +24,6 @@ interface GameboardProps {
   switchPlayer: () => void;
   randomPlay: () => void;
   handleStartGame: () => void;
-  isModalOpen: boolean;
   type: NavigateProps["type"];
   canPlayCondition: boolean;
   owner?: RoomInterface["owner"];
@@ -39,20 +39,23 @@ export default function Gameboard(props: GameboardProps) {
     handleStartGame,
     randomPlay,
     switchPlayer,
-    isModalOpen,
     type,
     canPlayCondition,
     owner,
     guest,
   } = props;
 
+  const { isModalMenuOpen, isModalWinnerOpen } = useGame();
+
   const [columnHoveringIdx, setColumnHoveringIdx] = useState(0);
 
+  const isAnyModalOpen = isModalMenuOpen || isModalWinnerOpen;
+
   const cursorPointerCondition =
-    isGameRunning && (type !== "public" || canPlayCondition);
+    isGameRunning && (type !== TypeEnum.public || canPlayCondition);
 
   const cursorNotAllowedCondition =
-    !isGameRunning || (type === "public" && !canPlayCondition);
+    !isGameRunning || (type === TypeEnum.public && !canPlayCondition);
 
   return (
     <div className="flex w-full justify-center z-20">
@@ -85,7 +88,7 @@ export default function Gameboard(props: GameboardProps) {
                 >
                   {isGameRunning &&
                     columnHoveringIdx === columnIdx &&
-                    (canPlayCondition || type !== "public") && (
+                    (canPlayCondition || type !== TypeEnum.public) && (
                       <img
                         src={currentPlayer === 1 ? markerRed : markerYellow}
                         alt="marker"
@@ -106,7 +109,7 @@ export default function Gameboard(props: GameboardProps) {
               isGameRunning={isGameRunning}
               switchPlayer={switchPlayer}
               randomPlay={randomPlay}
-              isModalOpen={isModalOpen}
+              isModalOpen={isAnyModalOpen}
               owner={owner}
               guest={guest}
             />

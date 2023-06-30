@@ -6,7 +6,7 @@ import cpu from "../../img/cpu.svg";
 import { useAuth } from "../../contexts/authContext";
 import clsx from "clsx";
 import { RoomInterface } from "../../hooks/useRoom";
-import { NavigateProps } from "../../hooks/useGameNavigate";
+import { NavigateProps, TypeEnum } from "../../hooks/useGameNavigate";
 import { useGame } from "../../contexts/gameContext";
 
 interface ScoreboardProps {
@@ -24,14 +24,12 @@ export default function Scoreboard(props: ScoreboardProps) {
   const { isGuest, playerOnePoints, playerTwoPoints } = useGame();
   const { user } = useAuth();
 
-  console.log(isGuest);
-
   return (
     <div className="flex absolute bottom-0 h-screen w-full justify-center items-end lg:items-center">
-      <div className="flex relative lg:w-[85%] xl:w-[70%] 2xl:w-[60vw] w-full justify-around lg:justify-between gap-2 pb-4 z-10">
+      <div className="flex relative lg:w-[85%] xl:w-[70%] 2xl:w-[60vw] w-full h-full items-center justify-around lg:justify-between gap-2 pb-4 z-10">
         <motion.div
           className={clsx(
-            "flex flex-col gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl",
+            "flex flex-col relative gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl",
             {
               "bg-white text-black": !owner && !guest,
               "bg-pink text-white": owner || guest,
@@ -66,9 +64,9 @@ export default function Scoreboard(props: ScoreboardProps) {
               "font-space font-bold text-xl uppercase transition-colors text-center"
             }
           >
-            {type === "cpu"
+            {type === TypeEnum.cpu
               ? "You"
-              : type !== "private" && isGuest && owner?.name
+              : type !== TypeEnum.private && isGuest && owner?.name
               ? owner.name
               : user?.displayName
               ? user.displayName
@@ -81,13 +79,13 @@ export default function Scoreboard(props: ScoreboardProps) {
 
         <motion.div
           className={clsx(
-            "flex flex-col gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl ",
+            "flex flex-col relative gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl ",
             {
               "bg-white text-black": !owner && !guest,
               "bg-yellow text-black": owner || guest,
             }
           )}
-          animate={{ x: type === "public" && !guest ? 1000 : 0 }}
+          animate={{ x: type === TypeEnum.public && !guest ? 1000 : 0 }}
           transition={{
             from: 1000,
             duration: 0.7,
@@ -97,14 +95,15 @@ export default function Scoreboard(props: ScoreboardProps) {
           <div className="flex absolute -top-8 w-16 h-16 justify-center">
             <img
               src={
-                type === "cpu"
+                type === TypeEnum.cpu
                   ? cpu
                   : guest?.photoURL
                   ? guest.photoURL
                   : playerTwo
               }
               className={clsx("", {
-                "rounded-full border-4 border-black": guest?.photoURL,
+                "rounded-full border-4 border-black":
+                  type === TypeEnum.public && guest?.photoURL,
               })}
               referrerPolicy="no-referrer"
               alt="playerImg"
@@ -115,7 +114,11 @@ export default function Scoreboard(props: ScoreboardProps) {
               "font-space font-bold text-xl uppercase transition-colors text-center"
             }
           >
-            {type === "cpu" ? "CPU" : guest?.name ? guest.name : "Player 2"}
+            {type === TypeEnum.cpu
+              ? "CPU"
+              : guest?.name
+              ? guest.name
+              : "Player 2"}
           </p>
           <h1 className={"font-space font-bold text-6xl transition-colors"}>
             {guest ? guest.points : playerTwoPoints}

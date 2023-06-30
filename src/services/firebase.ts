@@ -4,14 +4,14 @@ import { getAuth } from "firebase/auth";
 import { getDatabase, ref } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD2UCNmvXsj6Uf5F1H9ecB4LmIzn8cDrhc",
-  authDomain: "connect-four-84b25.firebaseapp.com",
-  databaseURL: "https://connect-four-84b25-default-rtdb.firebaseio.com",
-  projectId: "connect-four-84b25",
-  storageBucket: "connect-four-84b25.appspot.com",
-  messagingSenderId: "572140612658",
-  appId: "1:572140612658:web:88f57e99c86519e31ce02b",
-  measurementId: "G-91193KZY45",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);

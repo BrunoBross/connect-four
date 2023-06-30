@@ -6,7 +6,7 @@ import playerVsCpu from "../../img/player-vs-cpu.svg";
 import playerVsPlayer from "../../img/player-vs-player.svg";
 import { Dispatch, SetStateAction } from "react";
 import MenuButton from "../utils/MenuButton";
-import { useGameNavigate } from "../../hooks/useGameNavigate";
+import { TypeEnum, useGameNavigate } from "../../hooks/useGameNavigate";
 
 export interface MainMenuProps {
   isRulesModalOpen: boolean;
@@ -52,7 +52,7 @@ export default function MainMenu(props: MainMenuProps) {
             <MenuButton
               title="Play vs CPU"
               imgsrc={playerVsCpu}
-              onClick={() => handleNavigateGame({ type: "cpu" })}
+              onClick={() => handleNavigateGame({ type: TypeEnum.cpu })}
               bgcolor="bg-pink"
             />
             <MenuButton

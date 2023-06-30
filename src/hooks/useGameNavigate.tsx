@@ -1,7 +1,13 @@
 import { useNavigate } from "react-router-dom";
 
+export enum TypeEnum {
+  "public",
+  "private",
+  "cpu",
+}
+
 export interface NavigateProps {
-  type: "public" | "private" | "cpu";
+  type: TypeEnum;
   roomId?: string;
 }
 

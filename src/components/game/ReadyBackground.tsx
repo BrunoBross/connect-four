@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { RoomInterface } from "../../hooks/useRoom";
 import { useGame } from "../../contexts/gameContext";
-import { NavigateProps } from "../../hooks/useGameNavigate";
+import { NavigateProps, TypeEnum } from "../../hooks/useGameNavigate";
 
 interface ReadyBackgroundProps {
   currentPlayer: number;
@@ -109,9 +109,9 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
       }}
       exit={{ y: 1500 }}
     >
-      {type === "public" && isGuest ? (
+      {type === TypeEnum.public && isGuest ? (
         <WaitingGameStart />
-      ) : type === "public" && !guest ? (
+      ) : type === TypeEnum.public && !guest ? (
         <WaitingPlayer />
       ) : (
         <ReadyToStart />

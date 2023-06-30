@@ -50,7 +50,7 @@ export default function Modal(props: ModalProps) {
           children
         ) : (
           <div
-            className={`${bgcolor} flex flex-col w-[90vw] h-[80vh] xs:w-[450px] xs:h-[550px] gap-6 border-[3px] shadow-layout border-black rounded-3xl items-center justify-center`}
+            className={`${bgcolor} flex flex-col w-[90vw] xs:w-[450px] gap-6 border-[3px] shadow-layout border-black rounded-3xl items-center justify-center`}
           >
             <div className="flex flex-col h-full w-full py-10 items-center justify-around">
               {children}
