@@ -2,7 +2,6 @@ import { set, get, ref, update } from "firebase/database";
 import { database, databaseRef } from "../services/firebase";
 import { useAuth } from "../contexts/authContext";
 import { defaultGameMatrix, defaultTime } from "../contexts/gameContext";
-import { OperationCanceledException } from "typescript";
 
 export interface PlayerInterface {
   id: string;
@@ -112,7 +111,7 @@ export function useRoom() {
 
     await set(ref(database, `/room/${roomId}`), data).catch((error) => {
       console.log(error);
-      throw new OperationCanceledException();
+      return null;
     });
 
     return roomId;
