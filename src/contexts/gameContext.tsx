@@ -93,13 +93,18 @@ export default function GameProvider(props: GameProviderProps) {
   const [timer, setTimer] = useState(defaultTime);
 
   const { verifyBoard } = useGameUtils();
-  const { updateRoom } = useRoom();
+  const { updateRoom, updateOwner, updateGuest } = useRoom();
 
   const canPlayCondition =
     (currentPlayer === 1 && !isGuest) || (currentPlayer === 2 && isGuest);
 
   const handleStartGame = () => {
     if (type === TypeEnum.public && roomId && room?.guest && !isGuest) {
+      if (room.owner.points !== 0 || room.guest.points !== 0) {
+        updateRoom(roomId, {
+          gameMatrix: defaultGameMatrix,
+        });
+      }
       updateRoom(roomId, {
         isGameRunning: true,
       });
@@ -126,19 +131,36 @@ export default function GameProvider(props: GameProviderProps) {
   ]);
 
   const notifyWinner = useCallback(async () => {
+    if (type === TypeEnum.public) {
+      await updateRoom(roomId!, {
+        isGameRunning: false,
+        gameMatrix: defaultGameMatrix,
+      });
+      if (currentPlayer === 1) {
+        await updateOwner(roomId!, {
+          points: playerOnePoints + 1,
+        });
+      } else {
+        await updateGuest(roomId!, {
+          points: playerTwoPoints + 1,
+        });
+      }
+    }
+
     setWinner(currentPlayer);
+    setGameMatrix(defaultGameMatrix);
     currentPlayer === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
-    setGameMatrix(defaultGameMatrix);
-    setIsModalWinnerOpen(true);
   }, [
     currentPlayer,
-    setGameMatrix,
-    setIsModalWinnerOpen,
-    setPlayerOnePoints,
-    setPlayerTwoPoints,
-    setWinner,
+    playerOnePoints,
+    playerTwoPoints,
+    roomId,
+    type,
+    updateOwner,
+    updateGuest,
+    updateRoom,
   ]);
 
   const switchPlayer = useCallback(() => {

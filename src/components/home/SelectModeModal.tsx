@@ -5,6 +5,7 @@ import { useRoom } from "../../hooks/useRoom";
 
 import logo from "../../img/logo.svg";
 import { TypeEnum, useGameNavigate } from "../../hooks/useGameNavigate";
+import MenuButton from "../utils/MenuButton";
 
 interface SelectModeModalProps extends ModalBasicProps {}
 
@@ -47,7 +48,7 @@ export default function SelectModeModal(props: SelectModeModalProps) {
     >
       <div className="flex flex-col w-full items-center gap-5 font-space">
         {user ? (
-          <div className="flex items-center gap-4 bg-background-1 w-[85%] rounded-3xl justify-center p-2 border-black">
+          <div className="flex items-center gap-4 bg-background-1 w-[85%] rounded-3xl justify-center p-2">
             <img
               src={user.photoURL!}
               alt="user img"
@@ -74,56 +75,41 @@ export default function SelectModeModal(props: SelectModeModalProps) {
                 onChange={(event) => setRoomId(event.target.value)}
                 className="w-full items-center justify-center px-6 bg-white border-[3px] border-r-2  rounded-l-3xl border-black shadow-layout focus:outline-none"
               />
-              <button
-                className="w-[50%] items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-                onClick={handleJoinRoom}
-              >
-                Join
-              </button>
+              <div className="flex">
+                <button
+                  className="w-full px-8 items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2 transition-all"
+                  onClick={handleJoinRoom}
+                >
+                  Join
+                </button>
+              </div>
             </div>
-            <button
-              className="flex w-[85%] h-24 items-center bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+            <MenuButton
+              title="Create Online Match"
               onClick={handleCreateRoom}
-            >
-              <p className="uppercase text-white text-2xl font-bold">
-                Create Online Match
-              </p>
-            </button>
+              bgcolor="bg-pink"
+            />
           </>
         ) : (
-          <>
-            <button
-              className="flex w-[85%] h-24 items-center bg-pink p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-              onClick={loginWithGoogle}
-            >
-              <p className="uppercase text-white text-2xl font-bold">
-                Login With Google
-              </p>
-            </button>
-          </>
+          <MenuButton
+            title="Login With Google"
+            onClick={loginWithGoogle}
+            bgcolor="bg-pink"
+          />
         )}
-        <button
-          className="flex w-[85%] h-24 items-center bg-yellow p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+        <MenuButton
+          title="Create Local Match"
           onClick={() => handleNavigateGame({ type: TypeEnum.private })}
-        >
-          <p className="uppercase text-black text-2xl font-bold">
-            Create Local Match
-          </p>
-        </button>
-        <div className="flex w-[85%] gap-3">
-          <button
-            className="flex flex-1 h-24 items-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
+          bgcolor="bg-yellow"
+        />
+        <div className="flex w-[85%] gap-4">
+          <MenuButton
+            title="Go Back"
             onClick={() => setIsModalOpen(false)}
-          >
-            <p className="uppercase text-black text-2xl font-bold">Go Back</p>
-          </button>
+            padding={false}
+          />
           {signed && (
-            <button
-              className="flex flex-1 h-24 items-center bg-white p-4 px-5 border-[3px] rounded-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2"
-              onClick={logout}
-            >
-              <p className="uppercase text-black text-2xl font-bold">Logout</p>
-            </button>
+            <MenuButton title="Logout" onClick={logout} padding={false} />
           )}
         </div>
       </div>

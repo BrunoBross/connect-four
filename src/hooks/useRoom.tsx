@@ -12,21 +12,24 @@ export interface PlayerInterface {
   boardId: number; //identificador de player 1 ou 2
 }
 
-export interface RoomInterface {
-  owner: PlayerInterface;
+interface DefaultRoomInterface {
   gameMatrix: number[][];
-  guest?: PlayerInterface;
   isGameRunning: boolean;
   currentPlayer: number;
   isOpen: boolean;
   remainingTime: number;
 }
 
+export interface RoomInterface extends DefaultRoomInterface {
+  owner: PlayerInterface;
+  guest?: PlayerInterface;
+}
+
 const generateRoomKey = (): string => {
   return String(Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000);
 };
 
-export const defaultRoomValues = {
+export const defaultRoomValues: DefaultRoomInterface = {
   gameMatrix: defaultGameMatrix,
   isGameRunning: false,
   currentPlayer: 1,
@@ -43,8 +46,16 @@ export function useRoom() {
     }
   };
 
-  const updateRoom = (roomId: string, newData: any) => {
-    update(ref(database, `/room/${roomId}`), newData);
+  const updateOwner = async (roomId: string, newData: any) => {
+    await update(ref(database, `room/${roomId}/owner`), newData);
+  };
+
+  const updateGuest = async (roomId: string, newData: any) => {
+    await update(ref(database, `room/${roomId}/guest`), newData);
+  };
+
+  const updateRoom = async (roomId: string, newData: any) => {
+    await update(ref(database, `/room/${roomId}`), newData);
   };
 
   const getRoomById = (roomId: string) => {
@@ -121,5 +132,13 @@ export function useRoom() {
     return roomId;
   };
 
-  return { createRoom, verifyRoomExists, getRoomById, updateRoom, assignGuest };
+  return {
+    createRoom,
+    verifyRoomExists,
+    getRoomById,
+    updateRoom,
+    updateOwner,
+    updateGuest,
+    assignGuest,
+  };
 }

@@ -68,6 +68,7 @@ export default function Game() {
     }
   }, [assignGuest, room, roomId, user, type, setIsGuest]);
 
+  // request room data from firebase on every change
   useEffect(() => {
     if (type === TypeEnum.public) {
       onValue(ref(database, `/room/${roomId}`), (snapshot) => {
@@ -110,11 +111,7 @@ export default function Game() {
     <GameContainer>
       <WinnerModal />
 
-      <GameHeader
-        resetGame={resetGame}
-        handleGoHome={handleGoHome}
-        roomId={roomId}
-      />
+      <GameHeader handleGoHome={handleGoHome} />
 
       <Scoreboard
         playerOnePoints={playerOnePoints}
