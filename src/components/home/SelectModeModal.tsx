@@ -104,7 +104,7 @@ export default function SelectModeModal(props: SelectModeModalProps) {
             onClick={() => handleNavigateGame({ type: TypeEnum.private })}
             bgcolor="bg-yellow"
           />
-          <div className="flex bg-red-600 gap-4">
+          <div className="flex gap-4">
             <MenuButton title="Go Back" onClick={() => setIsModalOpen(false)} />
             {signed && <MenuButton title="Logout" onClick={logout} />}
           </div>
