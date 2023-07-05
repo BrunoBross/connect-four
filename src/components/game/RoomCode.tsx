@@ -61,7 +61,7 @@ export default function RoomCode() {
 
   return shouldRender ? (
     <motion.div
-      className="absolute left-5 top-5 z-[1000]"
+      className="absolute right-5 bottom-5 z-[1000]"
       initial="initial"
       animate={isExiting ? "exit" : "animate"}
       exit="exit"

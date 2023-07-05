@@ -59,7 +59,7 @@ export default function GameHeader(props: GameHeaderProps) {
         >
           Pause
         </h1>
-        <div className="flex flex-col w-full items-center gap-5">
+        <div className="flex flex-col w-[85%] items-center gap-5">
           <MenuButton
             title="Continue Game"
             onClick={() => setIsModalMenuOpen(false)}

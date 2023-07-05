@@ -24,9 +24,12 @@ export default function Scoreboard(props: ScoreboardProps) {
   const { isGuest, playerOnePoints, playerTwoPoints } = useGame();
   const { user } = useAuth();
 
+  const ownerName = owner?.name?.split(" ")[0];
+  const guestName = guest?.name?.split(" ")[0];
+
   return (
-    <div className="flex absolute bottom-0 h-screen w-full justify-center items-end lg:items-center">
-      <div className="flex relative lg:w-[85%] xl:w-[70%] 2xl:w-[60vw] w-full h-full items-center justify-around lg:justify-between gap-2 pb-4 z-10">
+    <div className="flex absolute bottom-0 pb-4 h-screen w-full justify-center items-end lg:items-center">
+      <div className="flex relative lg:w-[85%] xl:w-[70%] 2xl:w-[60vw] w-full items-center justify-between gap-2 pb-4 px-4 z-10">
         <motion.div
           className={clsx(
             "flex flex-col relative gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl",
@@ -67,7 +70,7 @@ export default function Scoreboard(props: ScoreboardProps) {
             {type === TypeEnum.cpu
               ? "You"
               : type !== TypeEnum.private && isGuest && owner?.name
-              ? owner.name
+              ? ownerName
               : user?.displayName
               ? user.displayName
               : "Player 1"}
@@ -117,7 +120,7 @@ export default function Scoreboard(props: ScoreboardProps) {
             {type === TypeEnum.cpu
               ? "CPU"
               : guest?.name
-              ? guest.name
+              ? guestName
               : "Player 2"}
           </p>
           <h1 className={"font-space font-bold text-6xl transition-colors"}>

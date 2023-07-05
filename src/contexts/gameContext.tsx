@@ -152,6 +152,7 @@ export default function GameProvider(props: GameProviderProps) {
     currentPlayer === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);
+    setIsGameRunning(false);
   }, [
     currentPlayer,
     playerOnePoints,

@@ -9,7 +9,7 @@ export default function GameboardPieces(props: GameboardPiecesProps) {
   const { gameMatrix, makePlay } = props;
 
   return (
-    <div className="flex z-[15] w-full h-full gap-[1vw] px-[0.9vw] pt-[0.9vw] pb-[3.5vw]">
+    <div className="flex absolute w-full h-full p-[2.7%] pt-[2.4%] gap-[3%] pb-[10.5%] z-[15]">
       {gameMatrix.map((column, columnIdx) => {
         return (
           <div

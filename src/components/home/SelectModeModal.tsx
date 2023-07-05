@@ -64,53 +64,50 @@ export default function SelectModeModal(props: SelectModeModalProps) {
         ) : (
           <img src={logo} alt="logo img" className="w-20" />
         )}
-        {signed ? (
-          <>
-            <div className="flex w-[85%] h-24 uppercase text-black text-2xl font-bold">
-              <input
-                type="text"
-                placeholder="Room Code"
-                value={roomId}
-                maxLength={5}
-                onChange={(event) => setRoomId(event.target.value)}
-                className="w-full items-center justify-center px-6 bg-white border-[3px] border-r-2  rounded-l-3xl border-black shadow-layout focus:outline-none"
-              />
-              <div className="flex">
-                <button
-                  className="w-full px-8 items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2 transition-all"
-                  onClick={handleJoinRoom}
-                >
-                  Join
-                </button>
+        <div className="flex w-[85%] flex-col gap-5">
+          {signed ? (
+            <>
+              <div className="flex uppercase text-black text-2xl font-bold h-24">
+                <input
+                  type="text"
+                  placeholder="Room Code"
+                  value={roomId}
+                  maxLength={5}
+                  onChange={(event) => setRoomId(event.target.value)}
+                  className="w-full items-center justify-center px-6 bg-white border-[3px] border-r-2  rounded-l-3xl border-black shadow-layout focus:outline-none"
+                />
+                <div className="flex">
+                  <button
+                    className="w-full px-8 items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2 transition-all"
+                    onClick={handleJoinRoom}
+                  >
+                    Join
+                  </button>
+                </div>
               </div>
-            </div>
+
+              <MenuButton
+                title="Create Online Match"
+                onClick={handleCreateRoom}
+                bgcolor="bg-pink"
+              />
+            </>
+          ) : (
             <MenuButton
-              title="Create Online Match"
-              onClick={handleCreateRoom}
+              title="Login With Google"
+              onClick={loginWithGoogle}
               bgcolor="bg-pink"
             />
-          </>
-        ) : (
-          <MenuButton
-            title="Login With Google"
-            onClick={loginWithGoogle}
-            bgcolor="bg-pink"
-          />
-        )}
-        <MenuButton
-          title="Create Local Match"
-          onClick={() => handleNavigateGame({ type: TypeEnum.private })}
-          bgcolor="bg-yellow"
-        />
-        <div className="flex w-[85%] gap-4">
-          <MenuButton
-            title="Go Back"
-            onClick={() => setIsModalOpen(false)}
-            padding={false}
-          />
-          {signed && (
-            <MenuButton title="Logout" onClick={logout} padding={false} />
           )}
+          <MenuButton
+            title="Create Local Match"
+            onClick={() => handleNavigateGame({ type: TypeEnum.private })}
+            bgcolor="bg-yellow"
+          />
+          <div className="flex bg-red-600 gap-4">
+            <MenuButton title="Go Back" onClick={() => setIsModalOpen(false)} />
+            {signed && <MenuButton title="Logout" onClick={logout} />}
+          </div>
         </div>
       </div>
     </Modal>

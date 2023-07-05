@@ -48,9 +48,12 @@ export default function Gameboard(props: GameboardProps) {
   const cursorNotAllowedCondition =
     !isGameRunning || (type === TypeEnum.public && !canPlayCondition);
 
+  const sizes =
+    "w-[90vw] h-[85vw] sm:w-[60vw] sm:h-[56.5vw] lg:w-[50vw] lg:h-[47vw] xl:w-[35vw] xl:h-[33vw]";
+
   return (
-    <div className="flex w-full justify-center z-20">
-      <div className="flex justify-center relative w-[35vw] h-[32.9vw]">
+    <div className="flex w-full h-full justify-center items-start z-20">
+      <div className={`flex justify-center relative ${sizes}`}>
         <motion.div
           className="flex flex-1 w-full h-full"
           animate={{ y: 1 }}
@@ -65,7 +68,7 @@ export default function Gameboard(props: GameboardProps) {
             <img src={boardShadow} alt="" className="absolute w-full z-10" />
           </div>
 
-          <div className="flex absolute z-30 w-full h-full p-4 pb-[4.12rem] gap-4">
+          <div className="flex absolute w-full h-full p-[2.7%] gap-[3%] pb-[10.9%] z-30">
             {gameMatrix.map((_, columnIdx) => {
               return (
                 <div
@@ -93,7 +96,7 @@ export default function Gameboard(props: GameboardProps) {
           <GameboardPieces gameMatrix={gameMatrix} makePlay={makePlay} />
         </motion.div>
 
-        <div className="absolute -bottom-[9rem] sm:-bottom-[7rem] z-30">
+        <div className="absolute -bottom-32  z-30">
           {isGameRunning ? (
             <TurnBackground />
           ) : (

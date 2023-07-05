@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { RoomInterface } from "../../hooks/useRoom";
 import { useGame } from "../../contexts/gameContext";
 import { NavigateProps, TypeEnum } from "../../hooks/useGameNavigate";
-import SimpleButton from "../utils/SimpleButton";
 
 interface ReadyBackgroundProps {
   currentPlayer: number;
@@ -89,7 +88,12 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
         >
           Ready?
         </h1>
-        <SimpleButton title="Play" onClick={handleStartGame} />
+        <button
+          className="flex w-full xs:w-44 items-center justify-center uppercase bg-background-0 text-white h-12 font-space font-bold px-12 rounded-full outline outline-[3px] outline-transparent -outline-offset-2 hover:outline-pink hover:outline-offset-4 hover:bg-pink transition-all"
+          onClick={handleStartGame}
+        >
+          Play
+        </button>
       </>
     );
   };
