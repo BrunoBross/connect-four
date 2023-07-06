@@ -21,6 +21,7 @@ module.exports = {
         layouthover: "0px 0.1rem 0px black",
       },
       screens: {
+        minXs: "300px",
         xs: "440px",
         heightXs: { raw: "(max-height: 900px)" },
       },

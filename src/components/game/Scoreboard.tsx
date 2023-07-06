@@ -32,7 +32,7 @@ export default function Scoreboard(props: ScoreboardProps) {
       <div className="flex relative lg:w-[85%] xl:w-[70%] 2xl:w-[60vw] w-full items-center justify-between gap-2 pb-4 px-4 z-10">
         <motion.div
           className={clsx(
-            "flex flex-col relative gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl",
+            "flex flex-col relative gap-1 items-center w-24 md:w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl",
             {
               "bg-white text-black": !owner && !guest,
               "bg-pink text-white": owner || guest,
@@ -82,7 +82,7 @@ export default function Scoreboard(props: ScoreboardProps) {
 
         <motion.div
           className={clsx(
-            "flex flex-col relative gap-1 items-center w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl ",
+            "flex flex-col relative gap-1 items-center w-24 md:w-36 pb-5 pt-10 border-[3px] shadow-layout border-black rounded-3xl ",
             {
               "bg-white text-black": !owner && !guest,
               "bg-yellow text-black": owner || guest,

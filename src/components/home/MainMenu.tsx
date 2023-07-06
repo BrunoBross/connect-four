@@ -46,7 +46,7 @@ export default function MainMenu(props: MainMenuProps) {
           type: "spring",
         }}
       >
-        <div className="flex flex-col h-full w-[85%] py-10 items-center justify-around">
+        <div className="flex flex-col h-full w-full py-10 items-center justify-around">
           <img src={logo} alt="logo" className="w-20" />
           <div className="flex flex-col w-full items-center gap-5">
             <MenuButton

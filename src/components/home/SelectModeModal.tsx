@@ -6,6 +6,7 @@ import { useRoom } from "../../hooks/useRoom";
 import logo from "../../img/logo.svg";
 import { TypeEnum, useGameNavigate } from "../../hooks/useGameNavigate";
 import MenuButton from "../utils/MenuButton";
+import clsx from "clsx";
 
 interface SelectModeModalProps extends ModalBasicProps {}
 
@@ -40,6 +41,8 @@ export default function SelectModeModal(props: SelectModeModalProps) {
     });
   };
 
+  const userName = user?.displayName?.split(" ")[0];
+
   return (
     <Modal
       isModalOpen={isModalOpen}
@@ -52,62 +55,62 @@ export default function SelectModeModal(props: SelectModeModalProps) {
             <img
               src={user.photoURL!}
               alt="user img"
-              className="w-20 rounded-full"
+              className="hidden xs:flex w-[25%] rounded-full"
             />
-            <div className="border-l-4 pl-4 border-white">
-              <h1 className="text-white text-3xl font-bold">
-                {user.displayName}
-              </h1>
-              <p className="text-white font-bold text-sm">{user.email}</p>
+            <div className="xs:border-l-4 xs:pl-4 border-white">
+              <h1 className="text-white text-3xl font-bold">{userName}</h1>
             </div>
           </div>
         ) : (
           <img src={logo} alt="logo img" className="w-20" />
         )}
-        <div className="flex w-[85%] flex-col gap-5">
-          {signed ? (
-            <>
-              <div className="flex uppercase text-black text-2xl font-bold h-24">
-                <input
-                  type="text"
-                  placeholder="Room Code"
-                  value={roomId}
-                  maxLength={5}
-                  onChange={(event) => setRoomId(event.target.value)}
-                  className="w-full items-center justify-center px-6 bg-white border-[3px] border-r-2  rounded-l-3xl border-black shadow-layout focus:outline-none"
-                />
-                <div className="flex">
-                  <button
-                    className="w-full px-8 items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2 transition-all"
-                    onClick={handleJoinRoom}
-                  >
-                    Join
-                  </button>
-                </div>
-              </div>
-
-              <MenuButton
-                title="Create Online Match"
-                onClick={handleCreateRoom}
-                bgcolor="bg-pink"
+        {signed ? (
+          <>
+            <div className="flex w-[85%] uppercase text-black text-xl xs:text-2xl font-bold h-24">
+              <input
+                type="text"
+                placeholder="Room Code"
+                value={roomId}
+                maxLength={5}
+                onChange={(event) => setRoomId(event.target.value)}
+                className="w-full items-center justify-center pl-3 xs:pl-6 bg-white border-[3px] border-r-2 rounded-l-3xl border-black shadow-layout focus:outline-none"
               />
-            </>
-          ) : (
+              <div className="flex">
+                <button
+                  className="w-full uppercase px-8 items-center justify-center bg-yellow border-[3px] border-l-2 rounded-r-3xl border-black shadow-layout hover:shadow-layouthover hover:translate-y-2 transition-all"
+                  onClick={handleJoinRoom}
+                >
+                  Join
+                </button>
+              </div>
+            </div>
+
             <MenuButton
-              title="Login With Google"
-              onClick={loginWithGoogle}
+              title="Create Online Match"
+              onClick={handleCreateRoom}
               bgcolor="bg-pink"
             />
-          )}
+          </>
+        ) : (
           <MenuButton
-            title="Create Local Match"
-            onClick={() => handleNavigateGame({ type: TypeEnum.private })}
-            bgcolor="bg-yellow"
+            title="Login With Google"
+            onClick={loginWithGoogle}
+            bgcolor="bg-pink"
           />
-          <div className="flex gap-4">
-            <MenuButton title="Go Back" onClick={() => setIsModalOpen(false)} />
-            {signed && <MenuButton title="Logout" onClick={logout} />}
-          </div>
+        )}
+        <MenuButton
+          title="Create Local Match"
+          onClick={() => handleNavigateGame({ type: TypeEnum.private })}
+          bgcolor="bg-yellow"
+        />
+        <div
+          className={clsx("flex gap-4 justify-center", {
+            "w-[85%]": signed,
+            "w-full": !signed,
+          })}
+        >
+          <MenuButton title="Go Back" onClick={() => setIsModalOpen(false)} />
+          {signed && <MenuButton title="Logout" onClick={logout} />}
         </div>
       </div>
     </Modal>

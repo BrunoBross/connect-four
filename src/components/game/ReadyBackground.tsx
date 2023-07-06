@@ -20,14 +20,14 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
       <>
         <p
           className={
-            "font-space font-bold text-black uppercase transition-colors"
+            "font-space font-bold text-black uppercase text-center transition-colors"
           }
         >
           Keep Calm
         </p>
         <h1
           className={
-            "font-space font-bold text-black text-6xl uppercase transition-colors"
+            "font-space font-bold text-black text-2xl sm:text-4xl lg:text-6xl xl:text-4xl 2xl:text-6xl uppercase transition-colors"
           }
         >
           Waiting
@@ -48,14 +48,14 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
       <>
         <p
           className={
-            "font-space font-bold text-black uppercase transition-colors"
+            "font-space font-bold text-black uppercase text-center transition-colors"
           }
         >
           Keep Calm
         </p>
         <h1
           className={
-            "font-space font-bold text-black text-6xl uppercase transition-colors"
+            "font-space font-bold text-black text-2xl sm:text-4xl lg:text-6xl xl:text-4xl 2xl:text-6xl uppercase transition-colors"
           }
         >
           Waiting
@@ -76,14 +76,14 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
       <>
         <p
           className={
-            "font-space font-bold text-black uppercase transition-colors"
+            "font-space font-bold text-black uppercase text-center transition-colors"
           }
         >
           Player {currentPlayer} starts
         </p>
         <h1
           className={
-            "font-space font-bold text-black text-6xl uppercase transition-colors"
+            "font-space font-bold text-black text-2xl sm:text-4xl lg:text-6xl xl:text-4xl 2xl:text-6xl uppercase transition-colors"
           }
         >
           Ready?
@@ -100,7 +100,7 @@ export default function ReadyBackground(props: ReadyBackgroundProps) {
 
   return (
     <motion.div
-      className="flex flex-col gap-1 items-center justify-center bg-white px-5 py-3 border-[3px] shadow-layout border-black rounded-[2rem]"
+      className="flex flex-col h-full w-full gap-1 items-center justify-center bg-white px-5 py-3 border-[3px] shadow-layout border-black rounded-[2rem]"
       animate={{ y: 0 }}
       transition={{
         from: 1500,

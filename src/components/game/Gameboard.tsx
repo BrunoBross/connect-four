@@ -96,7 +96,7 @@ export default function Gameboard(props: GameboardProps) {
           <GameboardPieces gameMatrix={gameMatrix} makePlay={makePlay} />
         </motion.div>
 
-        <div className="absolute -bottom-32  z-30">
+        <div className="absolute -bottom-[25%] lg:-bottom-[15%] w-[50%] h-[30%] lg:w-[40%] lg:h-[25%]  z-30">
           {isGameRunning ? (
             <TurnBackground />
           ) : (

@@ -108,8 +108,10 @@ export default function GameProvider(props: GameProviderProps) {
       updateRoom(roomId, {
         isGameRunning: true,
       });
+    } else {
+      setGameMatrix(defaultGameMatrix);
+      setIsGameRunning(true);
     }
-    setIsGameRunning(true);
   };
 
   const resetGame = useCallback(() => {
@@ -137,18 +139,20 @@ export default function GameProvider(props: GameProviderProps) {
         gameMatrix: defaultGameMatrix,
       });
       if (currentPlayer === 1) {
+        console.log("owner win");
+        const newPoints = room?.owner?.points! + 1;
         await updateOwner(roomId!, {
-          points: playerOnePoints + 1,
+          points: newPoints,
         });
       } else {
+        const newPoints = room?.guest?.points! + 1;
         await updateGuest(roomId!, {
-          points: playerTwoPoints + 1,
+          points: newPoints,
         });
       }
     }
 
     setWinner(currentPlayer);
-    setGameMatrix(defaultGameMatrix);
     currentPlayer === 1
       ? setPlayerOnePoints((prevState) => prevState + 1)
       : setPlayerTwoPoints((prevState) => prevState + 1);

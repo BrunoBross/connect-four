@@ -8,6 +8,9 @@ import { useGame } from "../../contexts/gameContext";
 export default function TurnBackground() {
   const { timer, currentPlayer, room } = useGame();
 
+  const ownerName = room?.owner?.name?.split(" ")[0];
+  const guestName = room?.guest?.name?.split(" ")[0];
+
   return (
     <motion.div
       className="flex flex-col items-center justify-center"
@@ -27,8 +30,8 @@ export default function TurnBackground() {
         >
           {room?.owner || room?.guest
             ? room.owner?.boardId === currentPlayer
-              ? `${room.owner.name}'s turn`
-              : `${room.guest?.name}'s turn`
+              ? `${ownerName}'s turn`
+              : `${guestName}'s turn`
             : `Player ${currentPlayer}'s turn`}
         </p>
         <h1
